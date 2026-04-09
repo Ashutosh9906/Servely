@@ -1,6 +1,8 @@
 import express from "express";
 import db from "./config/db.js"
 import { configDotenv } from "dotenv";
+import { sendEmail } from "./utilities/emailUtility.js";
+import { otpTemplate } from "./templates/userTemplates.js";
 configDotenv();
 
 const app = express();
@@ -15,6 +17,11 @@ app.get("/users", (req, res) => {
     res.json(result);
   });
 });
+
+app.get("/otp", (req, res) => {
+    let email = "testingofashutosh@gmail.com"
+    sendEmail(email, otpTemplate(405896));
+})
 
 app.listen(PORT, () => {
   console.log(`Server started on PORT : ${PORT}`);
