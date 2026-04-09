@@ -1,0 +1,19 @@
+{
+  "name": "servely",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ashutosh9906/Servely.git"
+  },
+  "author": "Gandule_D_Ashutosh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ashutosh9906/Servely/issues"
+  },
+  "homepage": "https://github.com/Ashutosh9906/Servely#readme",
+  "description": ""
+}
