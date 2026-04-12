@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OTP Verification</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #e2e8f0;
+    }
+
+```
+.wrapper {
+  width: 100%;
+  padding: 40px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 600px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.header {
+  padding: 30px;
+  text-align: center;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 26px;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.content {
+  padding: 40px 30px;
+  text-align: center;
+}
+
+.content p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #cbd5f5;
+}
+
+.otp-box {
+  margin: 30px 0;
+  display: inline-block;
+  padding: 18px 30px;
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 10px;
+  color: #ffffff;
+  background: rgba(99, 102, 241, 0.15);
+  border: 2px dashed #6366f1;
+  border-radius: 12px;
+}
+
+.info {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-top: 10px;
+}
+
+.footer {
+  padding: 20px;
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+  background: #020617;
+}
+
+.footer a {
+  color: #6366f1;
+  text-decoration: none;
+}
+
+.brand {
+  font-weight: bold;
+  color: #a5b4fc;
+}
+```
+
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+
+```
+  <!-- Header -->
+  <div class="header">
+    <h1>🔐 Verify Your Email</h1>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <p>Hello 👋,</p>
+    <p>
+      Use the One-Time Password (OTP) below to complete your verification.
+    </p>
+
+    <div class="otp-box">{{OTP}}</div>
+
+    <p class="info">
+      This OTP is valid for <strong>5 minutes</strong>.<br/>
+      Do not share it with anyone.
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>
+      © 2026 <span class="brand">YourApp</span>. All rights reserved.
+    </p>
+    <p>
+      Need help? <a href="mailto:support@yourapp.com">Contact Support</a>
+    </p>
+  </div>
+
+</div>
+```
+
+  </div>
+</body>
+</html>
