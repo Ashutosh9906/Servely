@@ -11,6 +11,8 @@ const PORT = process.env.PORT || 3000;
 
 import authRoutes from "./routers/userRoutes.js";
 import menuRoutes from "./routers/menuRoutes.js";
+import parcelRoutes from "./routers/parcelRoutes.js";
+import dineInRoutes from "./routers/dineInRoutes.js";
 
 //connecting to mongoDB
 mongoose.connect(process.env.MONGO_URL)
@@ -24,6 +26,8 @@ app.use(errorHandling);
 // Example route
 app.use("/auth", authRoutes);
 app.use("/menu", menuRoutes);
+app.use("/dine-in", dineInRoutes);
+app.use("/parcel", parcelRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server started on PORT : ${PORT}`);
