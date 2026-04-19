@@ -1,58 +1,54 @@
-import { verifyToken } from "../utils/jwt.js";
+import { handleResonse, verifyToken } from "../utilities/userUtility.js";
 
 export const authenticateUser = (req, res, next) => {
-    try {
-        const token = req.cookies.token;
+  try {
+    // ✅ Token from cookies (fallback to header optional)
+    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
 
-        if (!token) {
-            return res.status(401).json({
-                status: 401,
-                message: "Unauthorized - No token"
-            });
-        }
-
-        const decoded = verifyToken(token);
-
-        req.user = decoded;
-
-        next();
-    } catch (err) {
-        return res.status(401).json({
-            status: 401,
-            message: "Invalid or expired token"
-        });
+    if (!token) {
+      return handleResonse(res, 401, "Unauthorized - No token");
     }
+
+    // ✅ Verify token using your utility
+    const decoded = verifyToken(token);
+
+    // decoded = { userId, role }
+    req.user = decoded;
+
+    next();
+  } catch (err) {
+    return handleResonse(res, 401, "Invalid or expired token");
+  }
 };
 
 export const authorizeRoles = (...allowedRoles) => {
-    return (req, res, next) => {
-        try {
-            // ✅ Check if user exists (after auth middleware)
-            if (!req.user) {
-                return handleResonse(res, 401, "Unauthorized");
-            }
+  return (req, res, next) => {
+    try {
+      // ❌ No user (auth not applied)
+      if (!req.user) {
+        return handleResonse(res, 401, "Unauthorized");
+      }
 
-            const userRole = req.user.role;
+      const userRole = req.user.role;
 
-            // ❌ No role in token (edge case)
-            if (!userRole) {
-                return handleResonse(res, 403, "Forbidden - No role assigned");
-            }
+      // ❌ Role missing in token
+      if (!userRole) {
+        return handleResonse(res, 403, "Forbidden - No role assigned");
+      }
 
-            // ❌ Role not allowed
-            if (!allowedRoles.includes(userRole)) {
-                return handleResonse(
-                    res,
-                    403,
-                    `Forbidden - Requires role: ${allowedRoles.join(", ")}`
-                );
-            }
+      // ❌ Role not allowed
+      if (!allowedRoles.includes(userRole)) {
+        return handleResonse(
+          res,
+          403,
+          `Forbidden - Requires role: ${allowedRoles.join(", ")}`
+        );
+      }
 
-            // ✅ Access granted
-            next();
-
-        } catch (err) {
-            return handleResonse(res, 500, "Authorization error");
-        }
-    };
+      // ✅ Allowed
+      next();
+    } catch (err) {
+      return handleResonse(res, 500, "Authorization error");
+    }
+  };
 };

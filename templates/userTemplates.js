@@ -1,126 +1,97 @@
 export function otpTemplate(OTP){
     return {
-        subject: "OTP for email verification",
+        subject: "🔐 Your Verification Code",
         html: `<!DOCTYPE html>
-<html lang="en" style="margin:0; padding:0;">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>OTP Verification</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #f1f5f9;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #1e293b;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      background: #ffffff;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-    }
-
-    .header {
-      padding: 25px;
-      text-align: center;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: #ffffff;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-      letter-spacing: 1px;
-    }
-
-    .content {
-      padding: 35px 30px;
-      text-align: center;
-    }
-
-    .content p {
-      font-size: 15px;
-      line-height: 1.6;
-      color: #475569;
-    }
-
-    .otp-box {
-      display: inline-block;
-      margin: 25px 0;
-      padding: 16px 28px;
-      font-size: 30px;
-      font-weight: bold;
-      letter-spacing: 8px;
-      color: #4f46e5;
-      background: #eef2ff;
-      border: 2px dashed #6366f1;
-      border-radius: 10px;
-    }
-
-    .info {
-      font-size: 14px;
-      color: #64748b;
-      margin-top: 10px;
-    }
-
-    .footer {
-      background: #f8fafc;
-      text-align: center;
-      padding: 18px;
-      font-size: 12px;
-      color: #94a3b8;
-    }
-
-    .footer a {
-      color: #6366f1;
-      text-decoration: none;
-    }
-
-    .brand {
-      font-weight: bold;
-      color: #6366f1;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>OTP Verification</title>
 </head>
 
-<body>
-  <div class="container">
+<body style="margin:0; padding:0; background:#f1f5f9; font-family:'Segoe UI', Arial, sans-serif;">
 
-    <!-- Header -->
-    <div class="header">
-      <h1>🔐 Verify Your Email</h1>
-    </div>
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding:50px 20px;">
 
-    <!-- Content -->
-    <div class="content">
-      <p>Hello 👋,</p>
-      <p>
-        Use the One-Time Password (OTP) below to complete your verification.
-      </p>
+        <!-- Main Card -->
+        <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08);">
 
-      <div class="otp-box">${OTP}</div>
+          <!-- Header Section -->
+          <tr>
+            <td style="padding:28px 30px; background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+              <h2 style="margin:0; font-size:20px; color:#0f172a; font-weight:600;">
+                Verify your email
+              </h2>
+              <p style="margin:6px 0 0; font-size:13px; color:#64748b;">
+                Secure access to your account
+              </p>
+            </td>
+          </tr>
 
-      <p class="info">
-        This OTP is valid for <strong>5 minutes</strong>.<br/>
-        Do not share it with anyone.
-      </p>
-    </div>
+          <!-- Body -->
+          <tr>
+            <td style="padding:35px 30px; text-align:center;">
 
-    <!-- Footer -->
-    <div class="footer">
-      <p>
-        © 2026 <span class="brand">YourApp</span>. All rights reserved.
-      </p>
-      <p>
-        Need help? <a href="mailto:support@yourapp.com">Contact Support</a>
-      </p>
-    </div>
+              <p style="margin:0; font-size:14px; color:#475569;">
+                Use the code below to continue
+              </p>
 
-  </div>
+              <!-- OTP BOX -->
+              <div style="
+                margin:28px auto;
+                display:inline-block;
+                padding:18px 30px;
+                font-size:32px;
+                font-weight:700;
+                letter-spacing:10px;
+                border-radius:12px;
+                background:#eef2ff;
+                color:#4338ca;
+                border:1px solid #c7d2fe;
+                box-shadow:inset 0 1px 0 rgba(255,255,255,0.6), 0 6px 14px rgba(99,102,241,0.15);
+              ">
+                ${OTP}
+              </div>
+
+              <!-- Info Box -->
+              <div style="
+                margin-top:20px;
+                padding:12px 16px;
+                border-radius:8px;
+                background:#f8fafc;
+                border:1px solid #e2e8f0;
+                font-size:13px;
+                color:#64748b;
+              ">
+                ⏳ Valid for <strong>5 minutes</strong><br/>
+                🔒 Keep this code private
+              </div>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px; text-align:center; font-size:12px; color:#94a3b8; border-top:1px solid #e2e8f0;">
+              <p style="margin:0;">
+                © 2026 <span style="color:#6366f1; font-weight:600;">YourApp</span>
+              </p>
+              <p style="margin-top:6px;">
+                Need help? 
+                <a href="mailto:support@yourapp.com" style="color:#6366f1; text-decoration:none;">
+                  Contact support
+                </a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
 </body>
 </html>`
     }

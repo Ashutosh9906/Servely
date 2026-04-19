@@ -1,28 +1,43 @@
+// import nodemailer from "nodemailer";
+
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: process.env.USER_EMAIL,
+//     pass: process.env.APP_PASS,
+//   }
+// });
+
 import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.USER_EMAIL,
-    pass: process.env.APP_PASS,
-  }
-});
-
 async function sendEmail(recipientEmail, { subject, html }) {
-  const mailOptions = {
-    from: process.env.USER_EMAIL,
-    to: recipientEmail,
-    subject,
-    html
-  };
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email Sent:', info.response);
-    return;
+    // ✅ create transporter HERE (after env is loaded)
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.USER_EMAIL,
+        pass: process.env.APP_PASS,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: process.env.USER_EMAIL,
+      to: recipientEmail,
+      subject,
+      html,
+    });
+
+    console.log("✅ Email Sent:", info.response);
+    return true;
+
   } catch (error) {
-    console.log(error);
+    console.log("❌ Email Error:", error.message);
+    return false;
   }
 }
+
+// export { sendEmail };
 
 export {
   sendEmail

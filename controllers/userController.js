@@ -1,180 +1,168 @@
-import { createId } from "@paralleldrive/cuid2";
-import { checkVerifiedEmail, createUser, getUserByEmail, getVerification, markUsed, markVerified, upsertEmailVerification } from "../models/userModel.js";
+import User from "../models/userModel.js";
+import Otp from "../models/otpModel.js";
+
+
 import { comparePassword, createToken, generateOTP, getExpiryTime, handleResonse, hashPassword } from "../utilities/userUtility.js";
-import { otpTemplate } from "../templates/userTemplates.js";
 import { sendEmail } from "../utilities/emailUtility.js";
+import { otpTemplate } from "../templates/userTemplates.js";
 
-export const sendOtp = async (req, res, next) => {
-    try {
-        const { email } = req.body;
+export const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
 
-        // ✅ Validation
-        if (!email) {
-            return handleResonse(res, 400, "Email is required");
-        }
-
-        // ✅ Check if user already exists
-        const existingUser = await getUserByEmail(email);
-        if (existingUser) {
-            return handleResonse(res, 400, "User already exists, please login");
-        }
-
-        const otp = generateOTP();
-        const expiry = getExpiryTime();
-
-        await upsertEmailVerification(createId(), email, otp, expiry);
-
-        await sendEmail(email, otpTemplate(otp));
-
-        handleResonse(res, 200, "OTP sent successfully");
-
-    } catch (err) {
-        next(err);
+    // ❌ user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return handleResonse(res, 400, "User already exists");
     }
+
+    const otp = generateOTP();
+    const expiresAt = getExpiryTime(5);
+
+    await Otp.findOneAndUpdate(
+      { email },
+      {
+        email,
+        otp,
+        isVerified: false,
+        expiresAt
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+
+    await sendEmail(email, otpTemplate(otp));
+
+    return handleResonse(res, 200, "OTP sent");
+  } catch (err) {
+    console.log(err);
+    return handleResonse(res, 500, "Server error");
+  }
 };
 
-export const verifyOtp = async (req, res, next) => {
-    try {
-        const { email, otp } = req.body;
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
 
-        // ✅ Validation
-        if (!email || !otp) {
-            return handleResonse(res, 400, "Email and OTP are required");
-        }
+    const record = await Otp.findOne({ email });
 
-        const record = await getVerification(email, otp);
-
-        // ❌ Invalid OTP
-        if (!record) {
-            return handleResonse(res, 400, "Invalid or expired OTP");
-        }
-
-        // ❌ Already used
-        if (record.is_used) {
-            return handleResonse(res, 400, "OTP already used");
-        }
-
-        // ❌ Already verified
-        if (record.is_verified) {
-            return handleResonse(res, 400, "Email already verified");
-        }
-
-        // ❌ Expired (extra safety)
-        if (new Date(record.expiry_time) < new Date()) {
-            return handleResonse(res, 400, "OTP expired");
-        }
-
-        await markVerified(email);
-
-        handleResonse(res, 200, "Email verified successfully");
-
-    } catch (err) {
-        next(err);
+    // ❌ no OTP found
+    if (!record) {
+      return handleResonse(res, 400, "OTP not found");
     }
+
+    // ❌ expired
+    if (record.expiresAt < new Date()) {
+      return handleResonse(res, 400, "OTP expired");
+    }
+
+    // ❌ wrong OTP
+    if (record.otp !== otp) {
+      return handleResonse(res, 400, "Invalid OTP");
+    }
+
+    // ✅ verified
+    record.isVerified = true;
+    await record.save();
+
+    return handleResonse(res, 200, "OTP verified");
+  } catch (err) {
+    console.log(err);
+    return handleResonse(res, 500, "Server error");
+  }
 };
 
-export const completeProfile = async (req, res, next) => {
-    try {
-        const { name, email, password, phone } = req.body;
+export const registerUser = async (req, res) => {
+  try {
+    const { firstName, lastName, address, email, password } = req.body;
 
-        // ✅ Validation
-        if (!name || !email || !password) {
-            return handleResonse(res, 400, "All required fields must be provided");
-        }
-
-        // ✅ Already exists check
-        const existingUser = await getUserByEmail(email);
-        if (existingUser) {
-            return handleResonse(res, 400, "User already exists, please login");
-        }
-
-        // ✅ Check verification
-        const verified = await checkVerifiedEmail(email);
-
-        if (!verified) {
-            return handleResonse(res, 403, "Email not verified or OTP expired");
-        }
-
-        if (verified.is_used) {
-            return handleResonse(res, 400, "Verification already used");
-        }
-
-        // ✅ Hash password
-        const hashedPassword = await hashPassword(password);
-
-        // ✅ Create user
-        const userId = createId();
-
-        await createUser(userId, name, email, hashedPassword, phone);
-
-        // ✅ Mark OTP used
-        await markUsed(email);
-
-        // ✅ Create JWT
-        const token = createToken({
-            user_id: userId,
-            role: "customer"
-        });
-
-        // ✅ Set Cookie
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: false, // 🔒 set true in production
-            sameSite: "lax",
-            maxAge: 1.5 * 60 * 60 * 1000 // 1.5 hours
-        });
-
-        handleResonse(res, 201, "Account created & logged in successfully", {
-            user_id: userId,
-            email,
-            role: "customer"
-        });
-
-    } catch (err) {
-        next(err);
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return handleResonse(res, 400, "User already exists");
     }
+
+    const otpRecord = await Otp.findOne({ email });
+    if (!otpRecord || !otpRecord.isVerified) {
+      return handleResonse(res, 400, "OTP not verified");
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    const user = await User.create({
+      firstName,
+      lastName,
+      address,
+      email,
+      password: hashedPassword
+    });
+
+    await Otp.deleteOne({ email });
+
+    // ✅ IMPORTANT: match your utility
+    const token = createToken({
+      user_id: user._id,
+      role: user.role
+    });
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 120 * 60 * 1000
+    });
+    res.locals.token = req.cookies.token
+
+    const userData = user.toObject();
+    delete userData.password;
+
+    return handleResonse(res, 201, "User created", {
+      token,
+      user: userData
+    });
+
+  } catch (err) {
+    console.log(err);
+    return handleResonse(res, 500, "Server error");
+  }
 };
 
-export const loginUser = async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-        if (!email || !password) {
-            return handleResonse(res, 400, "Email and password are required");
-        }
+    const user = await User.findOne({ email });
 
-        const user = await getUserByEmail(email);
-
-        if (!user) {
-            return handleResonse(res, 401, "Invalid credentials");
-        }
-
-        const isMatch = await comparePassword(password, user.password);
-
-        if (!isMatch) {
-            return handleResonse(res, 401, "Invalid credentials");
-        }
-
-        // ✅ FIXED: pass full object
-        const token = createToken({
-            user_id: user.user_id,
-            role: user.role
-        });
-
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: false, // 🔒 true in production
-            sameSite: "lax",
-            maxAge: 1.5 * 60 * 60 * 1000
-        });
-
-        handleResonse(res, 200, "Login successful", {
-            user_id: user.user_id,
-            email: user.email,
-            role: user.role
-        });
-
-    } catch (err) {
-        next(err);
+    if (!user) {
+      return handleResonse(res, 400, "Invalid credentials");
     }
+
+    const isMatch = await comparePassword(password, user.password);
+
+    if (!isMatch) {
+      return handleResonse(res, 400, "Invalid credentials");
+    }
+
+    // ✅ IMPORTANT: match your utility
+    const token = createToken({
+      user_id: user._id,
+      role: user.role
+    });
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 30 * 60 * 1000
+    });
+    res.locals.token = req.cookies.token
+
+    const userData = user.toObject();
+    delete userData.password;
+
+    return handleResonse(res, 200, "Login success", {
+      token,
+      user: userData
+    });
+
+  } catch (err) {
+    console.log(err);
+    return handleResonse(res, 500, "Server error");
+  }
 };
