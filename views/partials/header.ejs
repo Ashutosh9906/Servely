@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servely | Desire Food for Your Taste</title>
+  <meta name="description" content="Servely - Premium restaurant offering quality food with fast delivery. Order your favorite meals online.">
+  
+  <!-- Fonts (loaded in CSS via @import) -->
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-left">
+        <a href="/" class="brand-logo">
+          <span class="logo-icon">🍕</span>
+          Servely
+        </a>
+      </div>
+      
+      <ul class="nav-links" id="nav-links">
+        <li><a href="/" class="active-link">Home</a></li>
+        <li><a href="/menu">Menu <span class="chevron">▾</span></a></li>
+        <li><a href="/#about">About Us</a></li>
+        <li><a href="/#membership">Membership <span class="chevron">▾</span></a></li>
+      </ul>
+      
+      <div class="nav-right">
+        <% if (user) { %>
+          <span class="greeting">Hi, <%= user.fullName.split(' ')[0] %></span>
+          <a href="/auth/logout" class="btn btn-primary btn-nav">Logout</a>
+        <% } else { %>
+          <a href="/auth/login" class="btn btn-primary btn-nav">Sign in</a>
+        <% } %>
+        
+        <div class="hamburger" id="hamburger">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>

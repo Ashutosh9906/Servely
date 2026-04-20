@@ -1,0 +1,25 @@
+<%- include('../partials/header') %>
+
+<div class="auth-page">
+  <div class="auth-box otp-box">
+    <h1 class="auth-title">Verify Your Email 🔐</h1>
+    <p class="auth-subtitle">We've sent a 6-digit OTP to <strong><%= email %></strong><br><small style="color: var(--text-muted);">(Check your server console for demo)</small></p>
+    
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <form action="/auth/verify-otp" method="POST" class="auth-form" id="otpForm">
+      <input type="hidden" name="email" value="<%= email %>">
+      
+      <div class="input-group">
+        <label for="otp">Verification Code</label>
+        <input type="text" id="otp" name="otp" required placeholder="Enter 6-digit code" maxlength="6" pattern="\d{6}" style="text-align:center; font-size: 1.5rem; letter-spacing: 12px; font-weight: 700;">
+      </div>
+      
+      <button type="submit" class="btn btn-primary btn-full btn-lg">Verify & Continue</button>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
