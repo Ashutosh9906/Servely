@@ -1,0 +1,95 @@
+<%- include('../partials/header') %>
+
+<div class="menu-page">
+  <div class="container">
+    <!-- Menu Header -->
+    <div class="menu-header">
+      <span class="section-label">Our Menu</span>
+      <h1 class="section-title">Explore Our Delicious Menu</h1>
+      <p>Discover a curated selection of flavors crafted with love and the finest ingredients.</p>
+    </div>
+
+    <div class="menu-layout">
+      <!-- Menu Items Section -->
+      <div class="menu-main">
+
+        <% categories.forEach(category => { %>
+          <div class="menu-category fade-in-up">
+            <h2 class="category-title"><%= category %></h2>
+            <div class="menu-grid">
+              
+              <% const catItems = items.filter(i => i.category === category); %>
+              <% if (catItems.length === 0) { %>
+                <p style="color: var(--text-muted);">New dishes arriving soon!</p>
+              <% } %>
+              <% catItems.forEach(item => { %>
+                <div class="menu-card">
+                  <div class="menu-img">
+                    <span class="menu-tag">New</span>
+                    <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
+                  </div>
+                  <div class="menu-info">
+                    <div class="menu-info-top">
+                      <h3><%= item.name %></h3>
+                      <span class="price">$<%= item.price.toFixed(2) %></span>
+                    </div>
+                    <p class="description"><%= item.description %></p>
+                    <div class="menu-card-footer">
+                      <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+                      <button class="add-to-cart-btn"
+                        data-id="<%= item._id %>" 
+                        data-name="<%= item.name %>" 
+                        data-price="<%= item.price %>">
+                        Buy Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+
+            </div>
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Cart Sidebar -->
+      <aside class="cart-sidebar">
+        <div class="cart-box">
+          <h2>🛒 Your Cart</h2>
+          <div class="cart-divider"></div>
+          
+          <div id="cart-items" class="cart-items-list">
+            <p class="empty-cart-msg text-center">Your cart is empty.</p>
+          </div>
+
+          <div class="cart-summary" style="display: none;" id="cartSummary">
+            <div class="cart-row">
+              <span>Subtotal</span>
+              <span id="cartSubtotal">$0.00</span>
+            </div>
+            <div class="cart-row">
+              <span>Tax (8%)</span>
+              <span id="cartTax">$0.00</span>
+            </div>
+            <div class="cart-row total-row">
+              <span>Total</span>
+              <span id="cartTotal">$0.00</span>
+            </div>
+            
+            <% if (user) { %>
+              <button class="btn btn-primary btn-full mt-2" id="checkoutBtn">🎉 Place Order</button>
+            <% } else { %>
+              <a href="/auth/login" class="btn btn-primary btn-full mt-2 text-center">Login to Checkout</a>
+            <% } %>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.isAuthenticated = <%= user ? 'true' : 'false' %>;
+</script>
+
+<%- include('../partials/footer') %>
