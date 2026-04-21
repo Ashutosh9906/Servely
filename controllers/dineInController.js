@@ -2,7 +2,24 @@ import Cart from "../models/cartModel.js";
 import Table from "../models/tableModel.js";
 import Menu from "../models/menuModel.js";
 import OrderQueue from "../models/orderQueueModel.js";
-import { handleResonse } from "../utils/responseHandler.js";
+import { handleResonse } from "../utilities/userUtility.js";
+
+export const getAllTables = async (req, res) => {
+    try {
+        const tables = await Table.find().sort({ tableNumber: 1 });
+
+        res.status(200).json({
+            message: "All tables fetched successfully",
+            count: tables.length,
+            tables,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Error fetching tables",
+            error: error.message,
+        });
+    }
+};
 
 export const selectTable = async (req, res) => {
     try {
@@ -33,46 +50,45 @@ export const selectTable = async (req, res) => {
 };
 
 export const addItemToCart = async (req, res) => {
-    try {
-        const { cartId, dishId, quantity } = req.body;
+  try {
+    const { cartId, dishId, quantity } = req.body;
 
-        const cart = await Cart.findById(cartId);
-        const dish = await Menu.findById(dishId);
+    const cart = await Cart.findById(cartId);
+    const dish = await Menu.findById(dishId);
 
-        if (!cart || !dish) {
-            return handleResonse(res, 404, "Cart or dish not found");
-        }
-
-        // check if already exists
-        const existingItem = cart.items.find(
-            item => item.dishId.toString() === dishId
-        );
-
-        if (existingItem) {
-            existingItem.quantity += quantity;
-        } else {
-            cart.items.push({
-                dishId,
-                name: dish.name,
-                price: dish.price,
-                quantity
-            });
-        }
-
-        await cart.save();
-
-        // 🔥 push to staff queue
-        await OrderQueue.create({
-            tableNumber: cart.tableId,
-            items: [{ name: dish.name, quantity }]
-        });
-
-        return handleResonse(res, 200, "Item added", cart);
-
-    } catch (err) {
-        console.log(err);
-        return handleResonse(res, 500, "Server error");
+    if (!cart || !dish) {
+      return handleResonse(res, 404, "Cart or dish not found");
     }
+
+    // ✅ ALWAYS PUSH NEW ITEM (no checking)
+    cart.items.push({
+      dishId,
+      name: dish.name,
+      price: dish.price,
+      quantity
+    });
+
+    await cart.save();
+
+    const table = await Table.findById(cart.tableId);
+
+    // ✅ ALWAYS CREATE NEW ENTRY IN QUEUE
+    await OrderQueue.create({
+      tableNumber: table.tableNumber,
+      items: [
+        {
+          name: dish.name,
+          quantity
+        }
+      ]
+    });
+
+    return handleResonse(res, 200, "Item added", cart);
+
+  } catch (err) {
+    console.log(err);
+    return handleResonse(res, 500, "Server error");
+  }
 };
 
 export const getOrdersForStaff = async (req, res) => {

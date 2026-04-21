@@ -1,5 +1,5 @@
 import express from "express";
-import { selectTable } from "../controllers/dineInController.js"; 
+import { getAllTables, selectTable } from "../controllers/dineInController.js"; 
 import { addItemToCart } from "../controllers/dineInController.js";
 import { getOrdersForStaff } from "../controllers/dineInController.js";
 import { markOrderServed } from "../controllers/dineInController.js";
@@ -9,6 +9,10 @@ import { authenticateUser, authorizeRoles } from "../middlewares/auth.js";
 
 const router = express.Router();
 
+router.get(
+  "/", 
+  getAllTables
+);
 
 // 🪑 USER: Select Table (start session)
 router.post(

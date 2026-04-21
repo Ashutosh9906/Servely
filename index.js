@@ -5,6 +5,7 @@ import express from "express";
 import { errorHandling } from "./middlewares/errorHandler.js";
 import { resolve } from "path";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.set("view engine", "ejs");
 app.set("views", resolve("./views"));
 app.use(express.json());
 app.use(errorHandling);
+app.use(cookieParser());
 
 // Example route
 app.use("/auth", authRoutes);

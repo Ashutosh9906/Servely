@@ -1,8 +1,11 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
 
 const SALT_ROUNDS = 10;
-const JWT_SECRET = process.env.JWT_SECRET;
+const secretKey = process.env.JWT_SECRET;
 
 export const handleResonse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -29,16 +32,17 @@ export const getExpiryTime = (minutes = 5) => {
 };
 
 export const createToken = (user) => {
+    console.log(secretKey);
     return jwt.sign(
         {
             userId: user.user_id,
             role: user.role
         },
-        JWT_SECRET,
+        secretKey,
         { expiresIn: "1.5h" }
     );
 };
 
 export const verifyToken = (token) => {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, secretKey);
 };
