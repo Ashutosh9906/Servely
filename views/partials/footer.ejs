@@ -26,6 +26,27 @@
     </div>
   </footer>
 
-  <script src="/js/main.js"></script>
+  <script>
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+    if (hamburger && navLinks) {
+      hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navLinks.classList.toggle('active');
+      });
+    }
+    // Fade-in-up on scroll
+    const fadeEls = document.querySelectorAll('.fade-in-up');
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      fadeEls.forEach(el => observer.observe(el));
+    } else {
+      fadeEls.forEach(el => el.classList.add('visible'));
+    }
+  </script>
 </body>
 </html>
+

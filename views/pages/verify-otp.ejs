@@ -5,11 +5,11 @@
     <h1 class="auth-title">Verify Your Email 🔐</h1>
     <p class="auth-subtitle">We've sent a 6-digit OTP to <strong><%= email %></strong><br><small style="color: var(--text-muted);">(Check your server console for demo)</small></p>
     
-    <% if (error) { %>
+    <% if (typeof error !== "undefined" && error) { %>
       <div class="error-msg"><%= error %></div>
     <% } %>
 
-    <form action="/auth/verify-otp" method="POST" class="auth-form" id="otpForm">
+    <form class="auth-form" id="otpForm">
       <input type="hidden" name="email" value="<%= email %>">
       
       <div class="input-group">
@@ -21,5 +21,84 @@
     </form>
   </div>
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("otpForm");
+    const submitBtn = form.querySelector('button[type="submit"]');
 
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.querySelector('input[name="email"]').value;
+      const otp = document.getElementById("otp").value;
+      submitBtn.textContent = 'Verifying...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch("/auth/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          // Complete registration
+          const savedData = JSON.parse(localStorage.getItem("registerData"));
+          const [firstName, ...rest] = savedData.fullName.split(" ");
+          const lastName = rest.join(" ");
+
+          const registerRes = await fetch("/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              firstName,
+              lastName,
+              address: savedData.phoneNumber,
+              email: savedData.email,
+              password: savedData.password
+            }),
+          });
+
+          const regData = await registerRes.json();
+
+          if (registerRes.ok) {
+            // Store user name for use across the site
+            localStorage.setItem("userName", savedData.fullName);
+            localStorage.removeItem("registerData");
+            window.location.href = "/auth/login";
+          } else {
+            submitBtn.textContent = 'Verify & Continue';
+            submitBtn.disabled = false;
+            showError(regData.message || "Registration failed");
+          }
+
+        } else {
+          submitBtn.textContent = 'Verify & Continue';
+          submitBtn.disabled = false;
+          showError(data.message || "Invalid OTP. Please try again.");
+        }
+
+      } catch (err) {
+        console.error(err);
+        submitBtn.textContent = 'Verify & Continue';
+        submitBtn.disabled = false;
+        showError("Server error. Please try again.");
+      }
+    });
+
+    function showError(msg) {
+      let errEl = document.getElementById('otpError');
+      if (!errEl) {
+        errEl = document.createElement('div');
+        errEl.id = 'otpError';
+        errEl.className = 'error-msg';
+        form.parentNode.insertBefore(errEl, form);
+      }
+      errEl.textContent = msg;
+    }
+  });
+</script>
 <%- include('../partials/footer') %>
+

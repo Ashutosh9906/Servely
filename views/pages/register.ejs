@@ -1,76 +1,127 @@
 <%- include('../partials/header') %>
 
-<div class="auth-page">
-  <div class="auth-box register-box">
-    <h1 class="auth-title">Create Account 🎉</h1>
-    <p class="auth-subtitle">Join Servely and enjoy exclusive dining experiences</p>
-    
-    <% if (error) { %>
-      <div class="error-msg"><%= error %></div>
-    <% } %>
+  <div class="auth-page">
+    <div class="auth-box register-box">
+      <h1 class="auth-title">Create Account 🎉</h1>
+      <p class="auth-subtitle">Join Servely and enjoy exclusive dining experiences</p>
 
-    <form action="/auth/register" method="POST" class="auth-form" id="registerForm">
-      <div class="input-row">
-        <div class="input-group w-50">
-          <label for="fullName">Full Name</label>
-          <input type="text" id="fullName" name="fullName" required placeholder="John Doe">
+      <% if (typeof error !=="undefined" && error) { %>
+        <div class="error-msg">
+          <%= error %>
         </div>
-        <div class="input-group w-50">
-          <label for="age">Age</label>
-          <input type="number" id="age" name="age" required min="18" max="120" placeholder="25">
-        </div>
-      </div>
-      
-      <div class="input-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" required placeholder="john@example.com">
-      </div>
-      
-      <div class="input-group">
-        <label for="phoneNumber">Phone Number</label>
-        <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="+1 234 567 8900">
-      </div>
-      
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required placeholder="Create a strong password" onkeyup="checkPasswordStrength(this.value)">
-        <div class="password-strength" id="pwdStrength">Strength: <span id="pwdLvl">—</span></div>
-      </div>
+        <% } %>
 
-      <div class="input-group">
-        <label for="confirmPassword">Confirm Password</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
-        <div id="pwdMatchError" style="display:none; color:#E63946; font-size:0.85rem; margin-top:6px; font-weight:500;">⚠️ Passwords do not match</div>
-      </div>
-      
-      <button type="submit" class="btn btn-primary btn-full btn-lg" id="registerBtn">Register & Verify</button>
+          <form class="auth-form" id="registerForm">
+            <div class="input-row">
+              <div class="input-group w-50">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" name="fullName" required placeholder="John Doe">
+              </div>
+              <div class="input-group w-50">
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" required min="18" max="120" placeholder="25">
+              </div>
+            </div>
 
-      <p class="auth-switch">Already have an account? <a href="/auth/login">Login</a></p>
-    </form>
+            <div class="input-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" required placeholder="john@example.com">
+            </div>
+
+            <div class="input-group">
+              <label for="phoneNumber">Phone Number</label>
+              <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="+1 234 567 8900">
+            </div>
+
+            <div class="input-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" required placeholder="Create a strong password"
+                onkeyup="checkPasswordStrength(this.value)">
+              <div class="password-strength" id="pwdStrength">Strength: <span id="pwdLvl">—</span></div>
+            </div>
+
+            <div class="input-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" required
+                placeholder="Confirm your password">
+              <div id="pwdMatchError"
+                style="display:none; color:#E63946; font-size:0.85rem; margin-top:6px; font-weight:500;">⚠️ Passwords do
+                not match</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg" id="registerBtn">Register & Verify</button>
+
+            <p class="auth-switch">Already have an account? <a href="/auth/login">Login</a></p>
+          </form>
+    </div>
   </div>
-</div>
 
-<script>
-  function checkPasswordStrength(password) {
-    const pwdLvl = document.getElementById('pwdLvl');
-    if(password.length === 0) { pwdLvl.innerText = '—'; pwdLvl.style.color = '#999'; return;}
-    if(password.length < 6) { pwdLvl.innerText = '🔴 Weak'; pwdLvl.style.color = '#E63946'; return;}
-    if(password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password)) { pwdLvl.innerText = '🟢 Strong'; pwdLvl.style.color = '#2ecc71'; return;}
-    pwdLvl.innerText = '🟡 Medium'; pwdLvl.style.color = '#F59E0B';
-  }
-
-  const registerForm = document.getElementById('registerForm');
-  registerForm.addEventListener('submit', (e) => {
-    const p1 = document.getElementById('password').value;
-    const p2 = document.getElementById('confirmPassword').value;
-    if(p1 !== p2) {
-      e.preventDefault();
-      document.getElementById('pwdMatchError').style.display = 'block';
-    } else {
-      document.getElementById('pwdMatchError').style.display = 'none';
-      document.getElementById('registerBtn').innerText = 'Sending OTP...';
+  <script>
+    function checkPasswordStrength(password) {
+      const pwdLvl = document.getElementById('pwdLvl');
+      if (password.length === 0) { pwdLvl.innerText = '—'; pwdLvl.style.color = '#999'; return; }
+      if (password.length < 6) { pwdLvl.innerText = '🔴 Weak'; pwdLvl.style.color = '#E63946'; return; }
+      if (password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password)) { pwdLvl.innerText = '🟢 Strong'; pwdLvl.style.color = '#2ecc71'; return; }
+      pwdLvl.innerText = '🟡 Medium'; pwdLvl.style.color = '#F59E0B';
     }
-  });
-</script>
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById('registerForm');
 
-<%- include('../partials/footer') %>
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const fullName = document.getElementById('fullName').value;
+        const age = document.getElementById('age').value;
+        const email = document.getElementById('email').value;
+        const phoneNumber = document.getElementById('phoneNumber').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // password match check
+        if (password !== confirmPassword) {
+          document.getElementById('pwdMatchError').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('pwdMatchError').style.display = 'none';
+        document.getElementById('registerBtn').innerText = 'Sending OTP...';
+
+        try {
+          const res = await fetch("/auth/send-otp", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            alert("OTP sent 📩");
+            // store data for later (IMPORTANT)
+            localStorage.setItem("registerData", JSON.stringify({
+              fullName,
+              age,
+              phoneNumber,
+              email,
+              password
+            }));
+
+            window.location.href = `/auth/verify-otp?email=${email}`;
+          } else {
+            alert(data.message || "Registration failed");
+            document.getElementById('registerBtn').innerText = 'Register & Verify';
+          }
+
+        } catch (err) {
+          console.error(err);
+          alert("Server error");
+        }
+      });
+    });
+  </script>
+
+  <%- include('../partials/footer') %>

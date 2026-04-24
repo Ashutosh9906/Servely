@@ -1,0 +1,444 @@
+<%- include('../partials/header') %>
+
+  <style>
+    .book-table-page {
+      padding-top: 110px;
+      padding-bottom: 80px;
+      background: var(--bg-warm);
+      min-height: 100vh;
+    }
+
+    .book-table-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .book-table-header h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+
+    .book-table-header p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* Legend */
+    .table-legend {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-light);
+    }
+
+    .legend-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.available {
+      background: #fff;
+      border: 2px solid var(--border);
+    }
+
+    .legend-dot.booked {
+      background: var(--primary);
+      border: 2px solid var(--primary-dark);
+    }
+
+    /* Floor */
+    .restaurant-floor {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      padding: 50px 40px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      max-width: 860px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .floor-label {
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 35px;
+    }
+
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+    }
+
+    /* Table card */
+    .table-card {
+      aspect-ratio: 1/1;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border);
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      user-select: none;
+    }
+
+    .table-card:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+      background: var(--bg-warm);
+    }
+
+    .table-card.booked {
+      background: var(--primary);
+      border-color: var(--primary-dark);
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+      cursor: not-allowed;
+    }
+
+    .table-card.booked:hover {
+      transform: none;
+      background: var(--primary);
+      border-color: var(--primary-dark);
+    }
+
+    .table-icon {
+      font-size: 1.9rem;
+    }
+
+    .table-num {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-light);
+      letter-spacing: 0.5px;
+    }
+
+    .table-status {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .table-card.booked .table-num,
+    .table-card.booked .table-status {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Table count summary */
+    .table-count-summary {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .table-count-summary span {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Modal */
+    .booking-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(43, 45, 66, 0.55);
+      backdrop-filter: blur(4px);
+      z-index: 5000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .booking-modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .booking-modal {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      padding: 45px 40px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      transform: translateY(30px) scale(0.95);
+      transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+
+    .booking-modal-overlay.active .booking-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-icon {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .booking-modal h2 {
+      font-size: 1.6rem;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .booking-modal p {
+      color: var(--text-muted);
+      margin-bottom: 25px;
+      font-size: 0.95rem;
+    }
+
+    .booking-modal .modal-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .booking-modal .modal-close-btn:hover {
+      color: var(--dark);
+    }
+
+    .modal-btn-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* Success confirmation */
+    .confirm-banner {
+      display: none;
+      background: #e8f5e9;
+      border-left: 4px solid #2ecc71;
+      padding: 14px 20px;
+      border-radius: var(--radius-sm);
+      margin-top: 30px;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      font-weight: 500;
+      color: #1a7a35;
+      font-size: 0.95rem;
+    }
+
+    .confirm-banner.show {
+      display: block;
+    }
+
+    @media (max-width: 640px) {
+      .tables-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .restaurant-floor {
+        padding: 30px 20px;
+      }
+
+      .book-table-header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+
+  <div class="book-table-page">
+    <div class="container">
+
+      <!-- Header -->
+      <div class="book-table-header">
+        <span class="section-label">Dine-In Booking</span>
+        <h1>Reserve Your Table 🍽️</h1>
+        <p>Select an available table below. Orange tables are already reserved — white tables are free for you to book!
+        </p>
+      </div>
+
+      <!-- Legend -->
+      <div class="table-legend">
+        <div class="legend-item">
+          <div class="legend-dot available"></div>
+          <span>Available</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot booked"></div>
+          <span>Reserved</span>
+        </div>
+      </div>
+
+      <!-- Restaurant Floor -->
+      <div class="restaurant-floor">
+        <div class="floor-label">🏠 Restaurant Floor Plan</div>
+        <div class="tables-grid" id="tablesGrid">
+          <!-- Tables are rendered by JS below -->
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="table-count-summary" id="tableSummary">
+        <span id="availableCount">10</span> tables available &nbsp;·&nbsp; <span id="bookedCount">0</span> reserved
+      </div>
+
+      <!-- Confirmation Banner -->
+      <div class="confirm-banner" id="confirmBanner"></div>
+
+    </div>
+  </div>
+
+  <!-- Booking Modal -->
+  <div class="booking-modal-overlay" id="modalOverlay">
+    <div class="booking-modal">
+      <button class="modal-close-btn" id="modalClose">✕</button>
+      <span class="modal-icon">🛎️</span>
+      <h2 id="modalTitle">Book Table</h2>
+      <p id="modalDesc">Would you like to reserve this table for dine-in?</p>
+      <div class="modal-btn-row">
+        <button class="btn btn-primary" id="modalConfirm">Confirm Booking</button>
+        <button class="btn btn-outline-primary" id="modalCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Auth check ───────────────────────────────────────────────
+    const token = localStorage.getItem('token');
+    const userName = localStorage.getItem('userName') || 'Guest';
+
+    // If not logged in, show login wall instead of tables
+    if (!token) {
+      document.querySelector('.book-table-page').innerHTML = `
+      <div class="container" style="min-height:80vh;display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;background:#fff;border-radius:20px;padding:60px 40px;box-shadow:0 8px 40px rgba(0,0,0,0.12);max-width:440px;width:100%;">
+          <div style="font-size:3.5rem;margin-bottom:20px;">🔐</div>
+          <h2 style="font-size:1.8rem;font-weight:800;color:#2B2D42;margin-bottom:10px;">Login Required</h2>
+          <p style="color:#999;font-size:0.95rem;margin-bottom:30px;">You need to be logged in to reserve a table at Servely.</p>
+          <a href="/auth/login" class="btn btn-primary btn-lg" style="display:inline-flex;">Sign In to Book</a>
+          <div style="margin-top:15px;">
+            <a href="/auth/register" style="font-size:0.9rem;color:#FF6B35;font-weight:600;">Don't have an account? Sign Up</a>
+          </div>
+        </div>
+      </div>
+    `;
+    }
+
+    // ─── Table state ──────────────────────────────────────────────
+    // true = booked, false = available (Tables 3 & 7 pre-booked as demo)
+    const tableState = [false, false, true, false, false, false, true, false, false, false];
+    let selectedTable = null;
+
+    const grid = document.getElementById('tablesGrid');
+    const overlay = document.getElementById('modalOverlay');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalClose = document.getElementById('modalClose');
+    const modalCancel = document.getElementById('modalCancel');
+    const availableCount = document.getElementById('availableCount');
+    const bookedCount = document.getElementById('bookedCount');
+
+    function renderTables() {
+      if (!grid) return;
+      grid.innerHTML = '';
+      let available = 0, booked = 0;
+      tableState.forEach((isBooked, i) => {
+        const card = document.createElement('div');
+        card.className = 'table-card' + (isBooked ? ' booked' : '');
+        card.id = 'table-' + i;
+        card.innerHTML = `
+        <span class="table-icon">${isBooked ? '🔴' : '🪑'}</span>
+        <span class="table-num">Table ${String(i + 1).padStart(2, '0')}</span>
+        <span class="table-status">${isBooked ? 'Reserved' : 'Available'}</span>
+      `;
+        if (!isBooked) {
+          card.addEventListener('click', () => openModal(i));
+          available++;
+        } else {
+          booked++;
+        }
+        grid.appendChild(card);
+      });
+      if (availableCount) availableCount.textContent = available;
+      if (bookedCount) bookedCount.textContent = booked;
+    }
+
+    function openModal(tableIndex) {
+      selectedTable = tableIndex;
+      if (modalTitle) modalTitle.textContent = `Book Table ${String(tableIndex + 1).padStart(2, '0')}`;
+      if (modalDesc) modalDesc.textContent = `Hi ${userName}! Reserve Table ${tableIndex + 1} in your name for dine-in at Servely?`;
+      if (overlay) overlay.classList.add('active');
+    }
+
+    function closeModal() {
+      if (overlay) overlay.classList.remove('active');
+      selectedTable = null;
+    }
+
+    if (modalConfirm) {
+      modalConfirm.addEventListener('click', () => {
+        if (selectedTable !== null) {
+          tableState[selectedTable] = true;
+
+          // Update button text & disable while redirecting
+          modalConfirm.textContent = '✅ Booked! Redirecting...';
+          modalConfirm.disabled = true;
+
+          // Store booking info in localStorage (frontend-only)
+          const bookings = JSON.parse(localStorage.getItem('servelyBookings') || '[]');
+          bookings.push({ table: selectedTable + 1, bookedBy: userName, time: new Date().toLocaleString() });
+          localStorage.setItem('servelyBookings', JSON.stringify(bookings));
+
+          // Redirect to menu after short delay
+          setTimeout(() => {
+            window.location.href = '/menu';
+          }, 1500);
+        }
+      });
+    }
+
+    if (modalClose) modalClose.addEventListener('click', closeModal);
+    if (modalCancel) modalCancel.addEventListener('click', closeModal);
+    if (overlay) overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+    // Only render tables if user is logged in
+    if (token) renderTables();
+  </script>
+
+
+  <%- include('../partials/footer') %>
