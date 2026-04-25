@@ -6,9 +6,9 @@ import { handleResonse } from "../utilities/userUtility.js";
 // 📖 GET ALL ITEMS (with filter)
 export const getAllItems = async (req, res) => {
   try {
-    const { filter, sort } = buildMenuFilter(req.query);
+    const { where, orderBy } = buildMenuFilter(req.query);
 
-    const items = await Menu.find(filter).sort(sort);
+    const items = await Menu.find(where).sort(orderBy);
 
     return handleResonse(res, 200, "Menu fetched", items);
   } catch (err) {

@@ -36,7 +36,34 @@
   /* ── Loading state ── */
   .menu-loading { text-align: center; padding: 60px 20px; color: var(--text-muted); }
   .menu-loading .spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  /* ── Bill Modal ── */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .bill-modal { background: #fff; width: 90%; max-width: 450px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; transform: scale(0.9); transition: transform 0.3s ease; }
+  .modal-overlay.show .bill-modal { transform: scale(1); }
+  .bill-header { background: var(--primary); color: #fff; padding: 20px; text-align: center; position: relative; }
+  .bill-header h2 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+  .close-modal { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+  .close-modal:hover { background: rgba(255,255,255,0.4); }
+  .bill-body { padding: 25px; max-height: 60vh; overflow-y: auto; }
+  .bill-items-list { margin-bottom: 20px; }
+  .bill-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; color: var(--dark); }
+  .bill-item-name { flex: 1; font-weight: 500; }
+  .bill-item-qty { color: var(--text-muted); width: 40px; text-align: center; }
+  .bill-item-price { font-weight: 600; width: 80px; text-align: right; }
+  .bill-divider { height: 1px; background: var(--border); margin: 15px 0; border-style: dashed; }
+  .bill-summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; color: var(--text-light); }
+  .bill-total-row { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 2px dashed var(--border); font-size: 1.25rem; font-weight: 800; color: var(--dark); }
+  .bill-footer { padding: 20px 25px; background: var(--bg-cream); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+  .pay-btn { flex: 1; background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all var(--transition); box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3); }
+  .pay-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4); }
+
+  /* Success State */
+  .success-content { text-align: center; padding: 40px 20px; display: none; }
+  .success-icon { font-size: 4rem; color: #10B981; margin-bottom: 20px; animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .success-title { font-size: 1.5rem; font-weight: 700; color: var(--dark); margin-bottom: 10px; }
+  .success-desc { color: var(--text-muted); margin-bottom: 25px; }
+  @keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 </style>
 
   <div class="menu-page">
@@ -93,6 +120,50 @@
             </div>
           </div>
         </aside>
+      </div>
+    </div>
+
+    <!-- Bill Modal -->
+    <div class="modal-overlay" id="billModal">
+      <div class="bill-modal">
+        <div id="billContent">
+          <div class="bill-header">
+            <h2>Your Bill</h2>
+            <button class="close-modal" id="closeBillBtn">✕</button>
+          </div>
+          <div class="bill-body">
+            <div class="bill-items-list" id="billItemsContainer">
+              <!-- Items injected here -->
+            </div>
+            <div class="bill-divider"></div>
+            <div class="bill-summary-row">
+              <span>Subtotal</span>
+              <span id="billSubtotal">$0.00</span>
+            </div>
+            <div class="bill-summary-row" id="billDiscountRow" style="display: none; color: var(--primary);">
+              <span id="billDiscountName">Discount</span>
+              <span id="billDiscount">-$0.00</span>
+            </div>
+            <div class="bill-summary-row">
+              <span>Tax (8%)</span>
+              <span id="billTax">$0.00</span>
+            </div>
+            <div class="bill-total-row">
+              <span>Total to Pay</span>
+              <span id="billTotal">$0.00</span>
+            </div>
+          </div>
+          <div class="bill-footer">
+            <button class="pay-btn" id="payBtn">Pay $0.00</button>
+          </div>
+        </div>
+        
+        <div class="success-content" id="successContent">
+          <div class="success-icon">🎉</div>
+          <h2 class="success-title">Payment Successful!</h2>
+          <p class="success-desc">Your order has been placed successfully and is being prepared.</p>
+          <button class="btn btn-primary" id="continueBtn" style="border-radius: 12px; padding: 12px 24px;">Continue Exploring</button>
+        </div>
       </div>
     </div>
   </div>
@@ -262,6 +333,103 @@
         <div class="menu-loading">
           <p style="color:var(--accent);">⚠️ Failed to load menu. Please refresh the page.</p>
         </div>`;
+    }
+  });
+
+  // ─── Checkout Flow ─────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const billModal = document.getElementById('billModal');
+    const closeBillBtn = document.getElementById('closeBillBtn');
+    const payBtn = document.getElementById('payBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    const billContent = document.getElementById('billContent');
+    const successContent = document.getElementById('successContent');
+
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', () => {
+        // Populate bill
+        const ids = Object.keys(cart).filter(k => cart[k].qty > 0);
+        if (ids.length === 0) return;
+
+        let subtotal = 0;
+        const billItemsHtml = ids.map(id => {
+          const itemTotal = cart[id].price * cart[id].qty;
+          subtotal += itemTotal;
+          return `
+            <div class="bill-item">
+              <span class="bill-item-name">${cart[id].name}</span>
+              <span class="bill-item-qty">x${cart[id].qty}</span>
+              <span class="bill-item-price">₹${itemTotal.toFixed(2)}</span>
+            </div>
+          `;
+        }).join('');
+
+        document.getElementById('billItemsContainer').innerHTML = billItemsHtml;
+
+        let discountRate = 0;
+        let discountName = '';
+        const membership = localStorage.getItem('membership');
+        if (membership === 'Silver') { discountRate = 0.05; discountName = 'Silver (5%)'; }
+        else if (membership === 'Gold') { discountRate = 0.15; discountName = 'Gold (15%)'; }
+        else if (membership === 'Platinum') { discountRate = 0.25; discountName = 'Platinum (25%)'; }
+
+        const discountAmount = subtotal * discountRate;
+        const afterDiscount = subtotal - discountAmount;
+        const tax = afterDiscount * 0.08;
+        const total = afterDiscount + tax;
+
+        document.getElementById('billSubtotal').textContent = '₹' + subtotal.toFixed(2);
+        
+        const billDiscountRow = document.getElementById('billDiscountRow');
+        if (discountRate > 0) {
+          billDiscountRow.style.display = 'flex';
+          document.getElementById('billDiscountName').textContent = 'Discount ' + discountName;
+          document.getElementById('billDiscount').textContent = '-₹' + discountAmount.toFixed(2);
+        } else {
+          billDiscountRow.style.display = 'none';
+        }
+
+        document.getElementById('billTax').textContent = '₹' + tax.toFixed(2);
+        document.getElementById('billTotal').textContent = '₹' + total.toFixed(2);
+        payBtn.textContent = 'Pay ₹' + total.toFixed(2);
+
+        // Reset modal state
+        billContent.style.display = 'block';
+        successContent.style.display = 'none';
+        billModal.classList.add('show');
+      });
+    }
+
+    if (closeBillBtn) {
+      closeBillBtn.addEventListener('click', () => {
+        billModal.classList.remove('show');
+      });
+    }
+
+    if (payBtn) {
+      payBtn.addEventListener('click', () => {
+        // Simulate payment processing
+        payBtn.innerHTML = '<span class="spinner" style="display:inline-block; width:20px; height:20px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></span> Processing...';
+        payBtn.disabled = true;
+
+        setTimeout(() => {
+          // Empty cart
+          Object.keys(cart).forEach(k => delete cart[k]);
+          updateCartUI();
+
+          billContent.style.display = 'none';
+          successContent.style.display = 'block';
+          payBtn.innerHTML = 'Pay';
+          payBtn.disabled = false;
+        }, 1500);
+      });
+    }
+
+    if (continueBtn) {
+      continueBtn.addEventListener('click', () => {
+        billModal.classList.remove('show');
+      });
     }
   });
 </script>
