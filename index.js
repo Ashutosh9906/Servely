@@ -17,6 +17,7 @@ import dineInRoutes from "./routers/dineInRoutes.js";
 import { checkUser } from "./middlewares/auth.js";
 
 // DB CONNECTION
+console.log("ENV VALUE:", process.env.MONGO_URL);
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDB Connected"))
@@ -31,7 +32,6 @@ app.use(cookieParser());
 // app.use(express.static("public"));
 
 app.use(checkUser);
-
 
 // VIEW ROUTES
 app.get("/", (req, res) => {

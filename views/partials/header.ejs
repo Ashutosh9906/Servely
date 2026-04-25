@@ -1550,13 +1550,23 @@
       const signInBtn = document.getElementById("signInBtn");
       const hamburger = document.getElementById("hamburger");
 
-      const handleLogout = (e) => {
+      const handleLogout = async (e) => {
         e.preventDefault();
-        localStorage.removeItem("token");
-        localStorage.removeItem("userName");
-        localStorage.removeItem("membership");
-        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.location.href = "/";
+
+        try {
+          await fetch('/auth/logout', {
+            method: 'POST'
+          });
+
+          localStorage.removeItem("token");
+          localStorage.removeItem("userName");
+          localStorage.removeItem("membership");
+
+          window.location.reload(); // 🔥 IMPORTANT
+
+        } catch (err) {
+          console.error(err);
+        }
       };
 
       const serverLogoutBtn = document.getElementById("logoutBtnServer");
@@ -1564,25 +1574,6 @@
         serverLogoutBtn.addEventListener("click", handleLogout);
       }
 
-      if (token && userName && signInBtn) {
-        // Remove Sign in button
-        signInBtn.remove();
 
-        // Add Greeting
-        const greetingSpan = document.createElement("span");
-        greetingSpan.className = "greeting";
-        greetingSpan.style.marginRight = "15px";
-        greetingSpan.textContent = "Hi, " + userName;
-
-        // Add Logout button
-        const logoutBtn = document.createElement("a");
-        logoutBtn.href = "#";
-        logoutBtn.className = "btn btn-primary btn-nav";
-        logoutBtn.textContent = "Logout";
-        logoutBtn.addEventListener("click", handleLogout);
-
-        navRight.insertBefore(greetingSpan, hamburger);
-        navRight.insertBefore(logoutBtn, hamburger);
-      }
     });
   </script>

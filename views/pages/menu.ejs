@@ -1,43 +1,233 @@
 <%- include('../partials/header') %>
 
-<style>
-  /* ── Category Tabs ── */
-  .menu-category-tabs { display: flex; gap: 10px; margin-bottom: 35px; flex-wrap: wrap; }
-  .menu-cat-tab { padding: 9px 22px; border-radius: 50px; font-size: 0.88rem; font-weight: 600; cursor: pointer; border: 2px solid var(--border); background: #fff; color: var(--text-light); transition: all var(--transition); }
-  .menu-cat-tab:hover, .menu-cat-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  <style>
+    /* ── Category Tabs ── */
+    .menu-category-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 35px;
+      flex-wrap: wrap;
+    }
 
-  /* ── Menu card enhanced ── */
-  .menu-card { background: #fff; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: all var(--transition); border: 1px solid transparent; }
-  .menu-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: rgba(255,107,53,0.2); }
-  .menu-img { position: relative; height: 180px; overflow: hidden; background: var(--bg-cream); display: flex; align-items: center; justify-content: center; }
-  .menu-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-  .menu-img .no-img { font-size: 3rem; }
-  .menu-card:hover .menu-img img { transform: scale(1.08); }
-  .menu-tag { position: absolute; top: 12px; left: 12px; background: var(--accent); color: #fff; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
-  .menu-info { padding: 18px; }
-  .menu-info-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-  .menu-info-top h3 { font-size: 1rem; font-weight: 700; color: var(--dark); }
-  .price { font-weight: 700; color: var(--primary); font-size: 1.1rem; white-space: nowrap; }
-  .item-desc { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
-  .menu-card-footer { display: flex; justify-content: space-between; align-items: center; }
-  .rating-stars { display: flex; gap: 2px; color: #F59E0B; font-size: 0.82rem; }
-  .add-to-cart-btn { background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 50px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all var(--transition); font-family: var(--font-sans); }
-  .add-to-cart-btn:hover { background: var(--primary-dark); transform: scale(1.05); box-shadow: var(--shadow-orange); }
+    .menu-cat-tab {
+      padding: 9px 22px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid var(--border);
+      background: #fff;
+      color: var(--text-light);
+      transition: all var(--transition);
+    }
 
-  /* ── Cart item row ── */
-  .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
-  .cart-item-info h4 { font-size: 0.9rem; font-weight: 600; color: var(--dark); margin-bottom: 3px; }
-  .cart-item-price { color: var(--primary); font-weight: 600; font-size: 0.88rem; }
-  .cart-item-actions { display: flex; align-items: center; gap: 7px; background: var(--bg-warm); border-radius: 50px; padding: 3px 7px; }
-  .cart-btn { width: 26px; height: 26px; border-radius: 50%; border: none; background: #fff; color: var(--dark); cursor: pointer; font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all var(--transition); box-shadow: var(--shadow-sm); }
-  .cart-btn:hover { background: var(--primary); color: #fff; }
-  .cart-qty { font-weight: 700; min-width: 18px; text-align: center; font-size: 0.88rem; }
+    .menu-cat-tab:hover,
+    .menu-cat-tab.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
 
-  /* ── Loading state ── */
-  .menu-loading { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-  .menu-loading .spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-</style>
+    /* ── Menu card enhanced ── */
+    .menu-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(255, 107, 53, 0.2);
+    }
+
+    .menu-img {
+      position: relative;
+      height: 180px;
+      overflow: hidden;
+      background: var(--bg-cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .menu-img .no-img {
+      font-size: 3rem;
+    }
+
+    .menu-card:hover .menu-img img {
+      transform: scale(1.08);
+    }
+
+    .menu-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--accent);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .menu-info {
+      padding: 18px;
+    }
+
+    .menu-info-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .menu-info-top h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .price {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1.1rem;
+      white-space: nowrap;
+    }
+
+    .item-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .menu-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rating-stars {
+      display: flex;
+      gap: 2px;
+      color: #F59E0B;
+      font-size: 0.82rem;
+    }
+
+    .add-to-cart-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-family: var(--font-sans);
+    }
+
+    .add-to-cart-btn:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
+      box-shadow: var(--shadow-orange);
+    }
+
+    /* ── Cart item row ── */
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cart-item-info h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 3px;
+    }
+
+    .cart-item-price {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+
+    .cart-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg-warm);
+      border-radius: 50px;
+      padding: 3px 7px;
+    }
+
+    .cart-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: #fff;
+      color: var(--dark);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .cart-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .cart-qty {
+      font-weight: 700;
+      min-width: 18px;
+      text-align: center;
+      font-size: 0.88rem;
+    }
+
+    /* ── Loading state ── */
+    .menu-loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .menu-loading .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 
   <div class="menu-page">
     <div class="container">
@@ -87,9 +277,10 @@
 
               <% if (locals.user) { %>
                 <button class="btn btn-primary btn-full mt-2" id="checkoutBtn">🎉 Place Order</button>
-              <% } else { %>
-                <a href="/auth/login" class="btn btn-primary btn-full mt-2 text-center" style="display:block; text-align:center;">Login to Checkout</a>
-              <% } %>
+                <% } else { %>
+                  <a href="/auth/login" class="btn btn-primary btn-full mt-2 text-center"
+                    style="display:block; text-align:center;">Login to Checkout</a>
+                  <% } %>
             </div>
           </div>
         </aside>
@@ -97,22 +288,22 @@
     </div>
   </div>
 
-<script>
-  // ─── Cart State ───────────────────────────────────────────────
-  const cart = {}; // { itemId: { name, price, qty } }
+  <script>
+    // ─── Cart State ───────────────────────────────────────────────
+    const cart = {}; // { itemId: { name, price, qty } }
 
-  function updateCartUI() {
-    const cartItemsEl = document.getElementById('cart-items');
-    const cartSummaryEl = document.getElementById('cartSummary');
-    const ids = Object.keys(cart).filter(k => cart[k].qty > 0);
+    function updateCartUI() {
+      const cartItemsEl = document.getElementById('cart-items');
+      const cartSummaryEl = document.getElementById('cartSummary');
+      const ids = Object.keys(cart).filter(k => cart[k].qty > 0);
 
-    if (ids.length === 0) {
-      cartItemsEl.innerHTML = '<p class="empty-cart-msg text-center">Your cart is empty.</p>';
-      cartSummaryEl.style.display = 'none';
-      return;
-    }
+      if (ids.length === 0) {
+        cartItemsEl.innerHTML = '<p class="empty-cart-msg text-center">Your cart is empty.</p>';
+        cartSummaryEl.style.display = 'none';
+        return;
+      }
 
-    cartItemsEl.innerHTML = ids.map(id => `
+      cartItemsEl.innerHTML = ids.map(id => `
       <div class="cart-item">
         <div class="cart-item-info">
           <h4>${cart[id].name}</h4>
@@ -126,144 +317,141 @@
       </div>
     `).join('');
 
-    const subtotal = ids.reduce((s, id) => s + cart[id].price * cart[id].qty, 0);
-    
-    let discountRate = 0;
-    let discountName = '';
-    const membership = localStorage.getItem('membership');
-    if (membership === 'Silver') { discountRate = 0.05; discountName = 'Silver (5%)'; }
-    else if (membership === 'Gold') { discountRate = 0.15; discountName = 'Gold (15%)'; }
-    else if (membership === 'Platinum') { discountRate = 0.25; discountName = 'Platinum (25%)'; }
+      const subtotal = ids.reduce((s, id) => s + cart[id].price * cart[id].qty, 0);
 
-    const discountAmount = subtotal * discountRate;
-    const afterDiscount = subtotal - discountAmount;
-    const tax = afterDiscount * 0.08;
-    const total = afterDiscount + tax;
+      let discountRate = 0;
+      let discountName = '';
+      const membership = localStorage.getItem('membership');
+      if (membership === 'Silver') { discountRate = 0.05; discountName = 'Silver (5%)'; }
+      else if (membership === 'Gold') { discountRate = 0.15; discountName = 'Gold (15%)'; }
+      else if (membership === 'Platinum') { discountRate = 0.25; discountName = 'Platinum (25%)'; }
 
-    document.getElementById('cartSubtotal').textContent = '$' + subtotal.toFixed(2);
-    
-    const discountRow = document.getElementById('cartDiscountRow');
-    if (discountRate > 0) {
-      discountRow.style.display = 'flex';
-      document.getElementById('cartDiscountName').textContent = 'Discount ' + discountName;
-      document.getElementById('cartDiscount').textContent = '-$' + discountAmount.toFixed(2);
-    } else {
-      if (discountRow) discountRow.style.display = 'none';
+      const discountAmount = subtotal * discountRate;
+      const afterDiscount = subtotal - discountAmount;
+      const tax = afterDiscount * 0.08;
+      const total = afterDiscount + tax;
+
+      document.getElementById('cartSubtotal').textContent = '$' + subtotal.toFixed(2);
+
+      const discountRow = document.getElementById('cartDiscountRow');
+      if (discountRate > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('cartDiscountName').textContent = 'Discount ' + discountName;
+        document.getElementById('cartDiscount').textContent = '-$' + discountAmount.toFixed(2);
+      } else {
+        if (discountRow) discountRow.style.display = 'none';
+      }
+
+      document.getElementById('cartTax').textContent = '$' + tax.toFixed(2);
+      document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+      cartSummaryEl.style.display = 'block';
     }
 
-    document.getElementById('cartTax').textContent = '$' + tax.toFixed(2);
-    document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
-    cartSummaryEl.style.display = 'block';
-  }
-
-  function addToCart(id, name, price) {
-    if (!cart[id]) cart[id] = { name, price: parseFloat(price), qty: 0 };
-    cart[id].qty++;
-    updateCartUI();
-    // Flash the button
-    const btn = document.querySelector(`[data-id="${id}"]`);
-    if (btn) { btn.textContent = 'Added ✓'; setTimeout(() => btn.textContent = 'Add to Cart', 1000); }
-  }
-
-  function changeQty(id, delta) {
-    if (!cart[id]) return;
-    cart[id].qty = Math.max(0, cart[id].qty + delta);
-    if (cart[id].qty === 0) delete cart[id];
-    updateCartUI();
-  }
-
-  // ─── Render Menu ─────────────────────────────────────────────
-  function renderMenu(items) {
-    const container = document.getElementById('menuMain');
-    if (!items || items.length === 0) {
-      container.innerHTML = '<p class="text-center" style="color:var(--text-muted);padding:60px 20px;">No menu items available yet. Check back soon!</p>';
-      return;
+    function addToCart(id, name, price) {
+      if (!cart[id]) cart[id] = { name, price: parseFloat(price), qty: 0 };
+      cart[id].qty++;
+      updateCartUI();
+      // Flash the button
+      const btn = document.querySelector(`[data-id="${id}"]`);
+      if (btn) { btn.textContent = 'Added ✓'; setTimeout(() => btn.textContent = 'Add to Cart', 1000); }
     }
 
-    const categories = [...new Set(items.map(i => i.category).filter(Boolean))];
+    function changeQty(id, delta) {
+      if (!cart[id]) return;
+      cart[id].qty = Math.max(0, cart[id].qty + delta);
+      if (cart[id].qty === 0) delete cart[id];
+      updateCartUI();
+    }
 
-    // Category tabs
-    const tabsHtml = `
-      <div class="menu-category-tabs">
-        <button class="menu-cat-tab active" onclick="filterCategory('all', this)">All</button>
-        ${categories.map(c => `<button class="menu-cat-tab" onclick="filterCategory('${c}', this)">${c}</button>`).join('')}
-      </div>
-    `;
+    // ─── Render Menu ─────────────────────────────────────────────
+function renderMenu(items) {
+  const container = document.getElementById('menuMain');
 
-    // All cards
-    const cardsHtml = categories.map(category => {
-      const catItems = items.filter(i => i.category === category);
-      return `
-        <div class="menu-category fade-in-up" data-cat="${category}">
-          <h2 class="category-title">${category}</h2>
-          <div class="menu-grid">
-            ${catItems.map(item => `
-              <div class="menu-card">
-                <div class="menu-img">
-                  <span class="menu-tag">New</span>
-                  ${item.image
-                    ? `<img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">`
-                    : ''}
-                  <span class="no-img" style="${item.image ? 'display:none' : ''}">🍽️</span>
-                </div>
-                <div class="menu-info">
-                  <div class="menu-info-top">
-                    <h3>${item.name}</h3>
-                    <span class="price">₹${Number(item.price).toFixed(2)}</span>
-                  </div>
-                  <p class="item-desc">${item.description || 'Freshly prepared with quality ingredients.'}</p>
-                  <div class="menu-card-footer">
-                    <div class="rating-stars">⭐⭐⭐⭐⭐</div>
-                    <button class="add-to-cart-btn" data-id="${item._id}" data-name="${item.name}" data-price="${item.price}"
-                      onclick="addToCart('${item._id}', '${(item.name || '').replace(/'/g, "\\'")}', ${item.price})">
-                      Add to Cart
-                    </button>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
+  if (!items || items.length === 0) {
+    container.innerHTML = '<p>No items available</p>';
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="menu-grid">
+      ${items.map(item => `
+        <div class="menu-card">
+          
+          <div class="menu-img">
+            <span class="menu-tag">New</span>
+            ${
+              item.image
+                ? `<img src="${item.image}" alt="${item.name}" loading="lazy">`
+                : `<span class="no-img">🍽️</span>`
+            }
+          </div>
+
+          <div class="menu-info">
+            
+            <div class="menu-info-top">
+              <h3>${item.name}</h3>
+              <span class="price">₹${Number(item.price).toFixed(2)}</span>
+            </div>
+
+            <p class="item-desc">
+              ${item.description || 'Freshly prepared with quality ingredients.'}
+            </p>
+
+            <div class="menu-card-footer">
+              <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+
+              <button class="add-to-cart-btn"
+                onclick="addToCart('${item._id}', '${(item.name || '').replace(/'/g, "\\'")}', ${item.price})">
+                Add to Cart
+              </button>
+            </div>
+
           </div>
         </div>
-      `;
-    }).join('');
+      `).join('')}
+    </div>
+  `;
+}
 
-    container.innerHTML = tabsHtml + cardsHtml;
-  }
+      
 
-  function filterCategory(cat, btn) {
-    // Update active tab
-    document.querySelectorAll('.menu-cat-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    // Show/hide sections
-    document.querySelectorAll('.menu-category').forEach(sec => {
-      if (cat === 'all' || sec.dataset.cat === cat) {
-        sec.style.display = '';
-      } else {
-        sec.style.display = 'none';
-      }
-    });
-  }
 
-  // ─── Fetch Menu ──────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', async () => {
-    const container = document.getElementById('menuMain');
-    try {
-      const res = await fetch('/api/menu');
-      if (!res.ok) throw new Error('Server error ' + res.status);
-      const result = await res.json();
-
-      // API returns { status, message, data }
-      const items = Array.isArray(result.data) ? result.data : [];
-      renderMenu(items);
-
-    } catch (err) {
-      console.error('Menu fetch error:', err);
-      container.innerHTML = `
-        <div class="menu-loading">
-          <p style="color:var(--accent);">⚠️ Failed to load menu. Please refresh the page.</p>
-        </div>`;
+    function filterCategory(cat, btn) {
+      // Update active tab
+      document.querySelectorAll('.menu-cat-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      // Show/hide sections
+      document.querySelectorAll('.menu-category').forEach(sec => {
+        if (cat === 'all' || sec.dataset.cat === cat) {
+          sec.style.display = '';
+        } else {
+          sec.style.display = 'none';
+        }
+      });
     }
-  });
-</script>
 
-<%- include('../partials/footer') %>
+    // ─── Fetch Menu ──────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+  const container = document.getElementById('menuMain');
+
+  try {
+    const res = await fetch('/api/menu'); // ✅ FIX
+
+    if (!res.ok) throw new Error('Server error ' + res.status);
+
+    const result = await res.json();
+
+    const items = Array.isArray(result.data) ? result.data : [];
+    renderMenu(items);
+
+  } catch (err) {
+    console.error('Menu fetch error:', err);
+    container.innerHTML = `
+      <div class="menu-loading">
+        <p style="color:var(--accent);">⚠️ Failed to load menu.</p>
+      </div>`;
+  }
+});
+  </script>
+
+  <%- include('../partials/footer') %>

@@ -5,48 +5,47 @@ import OrderQueue from "../models/orderQueueModel.js";
 import { handleResonse } from "../utilities/userUtility.js";
 
 export const getAllTables = async (req, res) => {
-    try {
-        const tables = await Table.find().sort({ tableNumber: 1 });
+  try {
+    const tables = await Table.find().sort({ tableNumber: 1 });
 
-        res.status(200).json({
-            message: "All tables fetched successfully",
-            count: tables.length,
-            tables,
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Error fetching tables",
-            error: error.message,
-        });
-    }
+    res.status(200).json({
+      message: "All tables fetched successfully",
+      count: tables.length,
+      tables,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching tables",
+      error: error.message,
+    });
+  }
 };
 
 export const selectTable = async (req, res) => {
-    try {
-        const { tableId } = req.body;
-        const userId = req.user.userId;
+  try {
+    const { tableId } = req.body;
+    const userId = req.user.userId;
 
-        const table = await Table.findById(tableId);
+    const table = await Table.findById(tableId);
 
-        if (!table || table.status === "occupied") {
-            return handleResonse(res, 400, "Table not available");
-        }
-
-        table.status = "occupied";
-        await table.save();
-
-        const cart = await Cart.create({
-            userId,
-            tableId,
-            items: []
-        });
-
-        return handleResonse(res, 200, "Table selected", cart);
-
-    } catch (err) {
-        console.log(err);
-        return handleResonse(res, 500, "Server error");
+    if (!table || table.status === "occupied") {
+      return handleResonse(res, 400, "Table not available");
     }
+
+    table.status = "occupied";
+    await table.save();
+
+    const cart = await Cart.create({
+      userId,
+      tableId,
+      items: [],
+    });
+
+    return handleResonse(res, 200, "Table selected", cart);
+  } catch (err) {
+    console.log(err);
+    return handleResonse(res, 500, "Server error");
+  }
 };
 
 export const addItemToCart = async (req, res) => {
@@ -65,7 +64,7 @@ export const addItemToCart = async (req, res) => {
       dishId,
       name: dish.name,
       price: dish.price,
-      quantity
+      quantity,
     });
 
     await cart.save();
@@ -78,13 +77,12 @@ export const addItemToCart = async (req, res) => {
       items: [
         {
           name: dish.name,
-          quantity
-        }
-      ]
+          quantity,
+        },
+      ],
     });
 
     return handleResonse(res, 200, "Item added", cart);
-
   } catch (err) {
     console.log(err);
     return handleResonse(res, 500, "Server error");
@@ -92,99 +90,93 @@ export const addItemToCart = async (req, res) => {
 };
 
 export const getOrdersForStaff = async (req, res) => {
-    try {
-        const orders = await OrderQueue.find({ status: "pending" });
+  try {
+    const orders = await OrderQueue.find({ status: "pending" });
 
-        return handleResonse(res, 200, "Orders fetched", orders);
-    } catch (err) {
-        return handleResonse(res, 500, "Server error");
-    }
+    return handleResonse(res, 200, "Orders fetched", orders);
+  } catch (err) {
+    return handleResonse(res, 500, "Server error");
+  }
 };
 
 export const markOrderServed = async (req, res) => {
-    try {
-        const { orderId } = req.params;
+  try {
+    const { orderId } = req.params;
 
-        await OrderQueue.findByIdAndUpdate(orderId, {
-            status: "served"
-        });
+    await OrderQueue.findByIdAndUpdate(orderId, {
+      status: "served",
+    });
 
-        return handleResonse(res, 200, "Order served");
-    } catch (err) {
-        return handleResonse(res, 500, "Server error");
-    }
+    return handleResonse(res, 200, "Order served");
+  } catch (err) {
+    return handleResonse(res, 500, "Server error");
+  }
 };
 
 export const checkout = async (req, res) => {
-    try {
-        const { cartId } = req.body;
+  try {
+    const { cartId } = req.body;
 
-        const cart = await Cart.findById(cartId);
+    const cart = await Cart.findById(cartId);
 
-        if (!cart) {
-            return handleResonse(res, 404, "Cart not found");
-        }
-
-        let total = 0;
-
-        cart.items.forEach(item => {
-            total += item.price * item.quantity;
-        });
-
-        cart.status = "completed";
-        await cart.save();
-
-        // free table
-        await Table.findByIdAndUpdate(cart.tableId, {
-            status: "available"
-        });
-
-        return handleResonse(res, 200, "Checkout successful", {
-            totalAmount: total
-        });
-
-    } catch (err) {
-        return handleResonse(res, 500, "Server error");
+    if (!cart) {
+      return handleResonse(res, 404, "Cart not found");
     }
+
+    let total = 0;
+
+    cart.items.forEach((item) => {
+      total += item.price * item.quantity;
+    });
+
+    cart.status = "completed";
+    await cart.save();
+
+    // free table
+    await Table.findByIdAndUpdate(cart.tableId, {
+      status: "available",
+    });
+
+    return handleResonse(res, 200, "Checkout successful", {
+      totalAmount: total,
+    });
+  } catch (err) {
+    return handleResonse(res, 500, "Server error");
+  }
 };
 
 export const cancelOrder = async (req, res) => {
-    try {
-        const { orderId } = req.params;
+  try {
+    const { orderId } = req.params;
 
-        const order = await OrderQueue.findById(orderId);
+    const order = await OrderQueue.findById(orderId);
 
-        if (!order) {
-            return handleResonse(res, 404, "Order not found");
-        }
-
-        // ⏳ Time check (2 minutes)
-        const now = new Date();
-        const createdAt = new Date(order.createdAt);
-
-        const diffInSeconds = (now - createdAt) / 1000;
-
-        if (diffInSeconds > 120) {
-            return handleResonse(
-                res,
-                400,
-                "Cannot cancel order after 2 minutes"
-            );
-        }
-
-        // ❌ Only pending orders can be cancelled
-        if (order.status !== "pending") {
-            return handleResonse(res, 400, "Order already processed");
-        }
-
-        // 🗑️ Delete order from queue
-        order.status = "cancelled";
-        await order.save();
-
-        return handleResonse(res, 200, "Order cancelled successfully");
-
-    } catch (err) {
-        console.log(err);
-        return handleResonse(res, 500, "Server error");
+    if (!order) {
+      return handleResonse(res, 404, "Order not found");
     }
+
+    // ⏳ Time check (2 minutes)
+    const now = new Date();
+    const createdAt = new Date(order.createdAt);
+
+    const diffInSeconds = (now - createdAt) / 1000;
+
+    if (diffInSeconds > 120) {
+      return handleResonse(res, 400, "Cannot cancel order after 2 minutes");
+    }
+
+    // ❌ Only pending orders can be cancelled
+    if (order.status !== "pending") {
+      return handleResonse(res, 400, "Order already processed");
+    }
+
+    // 🗑️ Delete order from queue
+    order.status = "cancelled";
+    await order.save();
+
+    return handleResonse(res, 200, "Order cancelled successfully");
+  } catch (err) {
+    console.log(err);
+    return handleResonse(res, 500, "Server error");
+  }
 };

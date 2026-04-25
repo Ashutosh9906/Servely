@@ -20,9 +20,6 @@ router.get("/verify-otp", (req, res) => {
   const { email } = req.query;
   res.render("pages/verify-otp", { email });
 });
-router.get("/menu-page", (req, res) => {
-  res.render("pages/menu");
-});
 
 // 🔥 Apply limiter ONLY to OTP route
 router.post("/send-otp", otpLimiter, sendOtp);
@@ -31,6 +28,11 @@ router.post("/send-otp", otpLimiter, sendOtp);
 router.post("/verify-otp", verifyOtp);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-
+router.post("/logout", (req, res) => {
+  res.clearCookie("token");
+  return res.status(200).json({
+    status: 200,
+    message: "Logged out",
+  });
+});
 export default router;
-
