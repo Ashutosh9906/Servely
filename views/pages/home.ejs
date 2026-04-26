@@ -203,7 +203,7 @@
         </ul>
         <a
           href="#"
-          onclick="handleMembershipClick(event, 'Silver')"
+          onclick="handleMembershipClick(event, 'silver')"
           class="btn btn-outline-primary btn-full"
           >Get Started</a
         >
@@ -225,7 +225,7 @@
         </ul>
         <a
           href="#"
-          onclick="handleMembershipClick(event, 'Gold')"
+          onclick="handleMembershipClick(event, 'gold')"
           class="btn btn-primary btn-full"
           >Get Started</a
         >
@@ -247,7 +247,7 @@
         </ul>
         <a
           href="#"
-          onclick="handleMembershipClick(event, 'Platinum')"
+          onclick="handleMembershipClick(event, 'platinum')"
           class="btn btn-outline-primary btn-full"
           >Get Started</a
         >
@@ -257,22 +257,46 @@
 </section>
 
 <script>
-  function handleMembershipClick(e, tier) {
+  async function handleMembershipClick(e, type) {
     e.preventDefault();
 
-    const prices = { Silver: "$9.99", Gold: "$19.99", Platinum: "$39.99" };
-    const price = prices[tier];
+    const token = localStorage.getItem("token");
 
-    // Ask to pay without a separate page
-    const confirmed = confirm(
-      `You have selected the ${tier} Membership (${price}/month).\n\nClick OK to pay and activate your benefits.`,
-    );
+    if (!token) {
+      alert("Please login first");
+      window.location.href = "/auth/login";
+      return;
+    }
 
-    if (confirmed) {
-      // Instantly activate membership and go to menu
-      localStorage.setItem("membership", tier);
-      alert("Payment Successful! Your benefits are now active.");
+    const confirmed = confirm(`Buy ${type} membership?`);
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch("/api/membership/purchase", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: type,
+          duration: 3,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message);
+
+      // ✅ store membership
+      localStorage.setItem("membership", data.data.type);
+      localStorage.setItem("discount", data.data.discount);
+
+      alert("Membership Activated 🎉");
+
       window.location.href = "/menu";
+    } catch (err) {
+      alert(err.message);
     }
   }
 </script>

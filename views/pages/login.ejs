@@ -95,12 +95,29 @@
       if (res.ok) {
         // store token and user info
         localStorage.setItem("token", data.token);
+        // 🔥 fetch membership after login
+        try {
+          const resMem = await fetch("/api/membership/me", {
+            headers: {
+              Authorization: `Bearer ${data.token}`,
+            },
+          });
+
+          const memData = await resMem.json();
+
+          if (resMem.ok) {
+            localStorage.setItem("membership", memData.data.type);
+            localStorage.setItem("discount", memData.data.discount);
+          } else {
+            localStorage.removeItem("membership");
+            localStorage.removeItem("discount");
+          }
+        } catch (err) {
+          console.log("Membership fetch failed");
+        }
         if (data.user) {
           const name = data.user.firstName || data.user.fullName || "User";
           localStorage.setItem("userName", name);
-          if (data.user.membership) {
-            localStorage.setItem("membership", data.user.membership);
-          }
         }
 
         // Redirect to home page

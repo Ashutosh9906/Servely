@@ -15,6 +15,7 @@ import menuRoutes from "./routers/menuRoutes.js";
 import parcelRoutes from "./routers/parcelRoutes.js";
 import dineInRoutes from "./routers/dineInRoutes.js";
 import { checkUser } from "./middlewares/auth.js";
+import membershipRoutes from "./routers/membershipRoutes.js";
 
 // DB CONNECTION
 console.log("ENV VALUE:", process.env.MONGO_URL);
@@ -30,7 +31,7 @@ app.use(express.json());
 app.use(cookieParser());
 // Static files are now inlined in templates as requested.
 // app.use(express.static("public"));
-
+app.use("/api/membership", membershipRoutes);
 app.use(checkUser);
 
 // VIEW ROUTES
