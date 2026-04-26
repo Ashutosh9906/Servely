@@ -115,37 +115,61 @@ export const markOrderServed = async (req, res) => {
     }
 };
 
+import Membership from "../models/membershipModel.js";
+
 export const checkout = async (req, res) => {
-    try {
-        const { cartId } = req.body;
+  try {
+    const { cartId } = req.body;
 
-        const cart = await Cart.findById(cartId);
+    const cart = await Cart.findById(cartId);
 
-        if (!cart) {
-            return handleResonse(res, 404, "Cart not found");
-        }
-
-        let total = 0;
-
-        cart.items.forEach(item => {
-            total += item.price * item.quantity;
-        });
-
-        cart.status = "completed";
-        await cart.save();
-
-        // free table
-        await Table.findByIdAndUpdate(cart.tableId, {
-            status: "available"
-        });
-
-        return handleResonse(res, 200, "Checkout successful", {
-            totalAmount: total
-        });
-
-    } catch (err) {
-        return handleResonse(res, 500, "Server error");
+    if (!cart) {
+      return handleResonse(res, 404, "Cart not found");
     }
+
+    // 🧮 Calculate total
+    let total = 0;
+
+    cart.items.forEach(item => {
+      total += item.price * item.quantity;
+    });
+
+    // 💎 Check membership
+    const membership = await Membership.findOne({
+      userId: cart.userId,
+      status: "active"
+    });
+
+    let discount = 0;
+    let discountAmount = 0;
+    let finalAmount = total;
+
+    if (membership) {
+      discount = membership.discount;
+      discountAmount = (total * discount) / 100;
+      finalAmount = total - discountAmount;
+    }
+
+    // ✅ Mark cart completed
+    cart.status = "completed";
+    await cart.save();
+
+    // 🪑 Free table
+    await Table.findByIdAndUpdate(cart.tableId, {
+      status: "available"
+    });
+
+    return handleResonse(res, 200, "Checkout successful", {
+      totalAmount: total,
+      discount: discount + "%",
+      discountAmount,
+      finalAmount
+    });
+
+  } catch (err) {
+    console.log(err);
+    return handleResonse(res, 500, "Server error");
+  }
 };
 
 export const cancelOrder = async (req, res) => {
