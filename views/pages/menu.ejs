@@ -221,7 +221,82 @@
       animation: spin 0.8s linear infinite;
       margin: 0 auto 16px;
     }
+/* 🔥 BILL MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
 
+.bill-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 420px;
+  padding: 25px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  animation: scaleUp 0.3s ease;
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.bill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.bill-header h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.bill-header button {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.bill-body {
+  margin-bottom: 20px;
+}
+
+.bill-body p {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+  font-size: 0.95rem;
+}
+
+#billTotal {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+#payBtn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 50px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#payBtn:hover {
+  background: var(--primary-dark);
+}
     @keyframes spin {
       to {
         transform: rotate(360deg);
@@ -286,9 +361,73 @@
         </aside>
       </div>
     </div>
+    <!-- Bill Modal -->
+<div class="modal-overlay" id="billModal">
+  <div class="bill-modal">
+
+    <div id="billContent">
+      <div class="bill-header">
+        <h2>Your Bill</h2>
+        <button id="closeBillBtn">✕</button>
+      </div>
+
+      <div class="bill-body">
+        <div id="billItemsContainer"></div>
+
+        <div>
+          <p>Subtotal: <span id="billSubtotal"></span></p>
+          <p id="billDiscountRow" style="display:none;">
+            Discount: <span id="billDiscount"></span>
+          </p>
+          <p>Tax: <span id="billTax"></span></p>
+          <h3>Total: <span id="billTotal"></span></h3>
+        </div>
+      </div>
+
+      <button id="payBtn">Pay</button>
+    </div>
+
+    <div id="successContent" style="display:none;">
+      <h2>Payment Successful 🎉</h2>
+    </div>
+
+  </div>
+</div>
   </div>
 
   <script>
+    //bill script
+    function calculateBill(subtotal) {
+  let discountRate = 0;
+  let discountName = '';
+
+  const membership = localStorage.getItem('membership');
+
+  if (membership === 'Silver') {
+    discountRate = 0.05;
+    discountName = 'Silver (5%)';
+  } else if (membership === 'Gold') {
+    discountRate = 0.15;
+    discountName = 'Gold (15%)';
+  } else if (membership === 'Platinum') {
+    discountRate = 0.25;
+    discountName = 'Platinum (25%)';
+  }
+
+  const discount = subtotal * discountRate;
+  const afterDiscount = subtotal - discount;
+  const tax = afterDiscount * 0.08;
+  const total = afterDiscount + tax;
+
+  return {
+    subtotal,
+    discount,
+    discountRate,
+    discountName,
+    tax,
+    total
+  };
+}
     // ─── Cart State ───────────────────────────────────────────────
     const cart = {}; // { itemId: { name, price, qty } }
 
@@ -307,7 +446,7 @@
       <div class="cart-item">
         <div class="cart-item-info">
           <h4>${cart[id].name}</h4>
-          <span class="cart-item-price">$${(cart[id].price * cart[id].qty).toFixed(2)}</span>
+          <span class="cart-item-price">₹${(cart[id].price * cart[id].qty).toFixed(2)}</span>
         </div>
         <div class="cart-item-actions">
           <button class="cart-btn" onclick="changeQty('${id}', -1)">−</button>
@@ -319,42 +458,66 @@
 
       const subtotal = ids.reduce((s, id) => s + cart[id].price * cart[id].qty, 0);
 
-      let discountRate = 0;
-      let discountName = '';
-      const membership = localStorage.getItem('membership');
-      if (membership === 'Silver') { discountRate = 0.05; discountName = 'Silver (5%)'; }
-      else if (membership === 'Gold') { discountRate = 0.15; discountName = 'Gold (15%)'; }
-      else if (membership === 'Platinum') { discountRate = 0.25; discountName = 'Platinum (25%)'; }
+      const bill = calculateBill(subtotal);
 
-      const discountAmount = subtotal * discountRate;
-      const afterDiscount = subtotal - discountAmount;
-      const tax = afterDiscount * 0.08;
-      const total = afterDiscount + tax;
-
-      document.getElementById('cartSubtotal').textContent = '$' + subtotal.toFixed(2);
+      document.getElementById('cartSubtotal').textContent = '₹' + bill.subtotal.toFixed(2);
 
       const discountRow = document.getElementById('cartDiscountRow');
-      if (discountRate > 0) {
+      if (bill.discountRate > 0) {
         discountRow.style.display = 'flex';
-        document.getElementById('cartDiscountName').textContent = 'Discount ' + discountName;
-        document.getElementById('cartDiscount').textContent = '-$' + discountAmount.toFixed(2);
+       document.getElementById('cartDiscountName').textContent = 'Discount ' + bill.discountName;
+document.getElementById('cartDiscount').textContent = '-₹' + bill.discount.toFixed(2);
       } else {
         if (discountRow) discountRow.style.display = 'none';
       }
 
-      document.getElementById('cartTax').textContent = '$' + tax.toFixed(2);
-      document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+      document.getElementById('cartTax').textContent = '₹' + bill.tax.toFixed(2);
+document.getElementById('cartTotal').textContent = '₹' + bill.total.toFixed(2);
       cartSummaryEl.style.display = 'block';
     }
 
-    function addToCart(id, name, price) {
-      if (!cart[id]) cart[id] = { name, price: parseFloat(price), qty: 0 };
-      cart[id].qty++;
-      updateCartUI();
-      // Flash the button
-      const btn = document.querySelector(`[data-id="${id}"]`);
-      if (btn) { btn.textContent = 'Added ✓'; setTimeout(() => btn.textContent = 'Add to Cart', 1000); }
-    }
+  async function addToCart(id, name, price) {
+  const token = localStorage.getItem("token");
+  const cartId = localStorage.getItem("cartId");
+
+  // Not logged in
+  if (!token) {
+    alert("Please login first");
+    return;
+  }
+
+  // 🔥 PARCEL FLOW (no table selected)
+  if (!cartId) {
+    if (!cart[id]) cart[id] = { name, price: parseFloat(price), qty: 0 };
+    cart[id].qty++;
+    updateCartUI();
+    return;
+  }
+
+  // 🔥 DINE-IN FLOW
+  try {
+    await fetch('/api/dine-in/cart/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        cartId,
+        dishId: id,
+        quantity: 1
+      })
+    });
+
+    if (!cart[id]) cart[id] = { name, price: parseFloat(price), qty: 0 };
+    cart[id].qty++;
+    updateCartUI();
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to add item");
+  }
+}
 
     function changeQty(id, delta) {
       if (!cart[id]) return;
@@ -387,6 +550,7 @@ function renderMenu(items) {
           </div>
 
           <div class="menu-info">
+
             
             <div class="menu-info-top">
               <h3>${item.name}</h3>
@@ -451,6 +615,116 @@ function renderMenu(items) {
         <p style="color:var(--accent);">⚠️ Failed to load menu.</p>
       </div>`;
   }
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const checkoutBtn = document.getElementById("checkoutBtn");
+  const billModal = document.getElementById("billModal");
+  const payBtn = document.getElementById("payBtn");
+
+  if (payBtn) {
+  payBtn.addEventListener("click", async () => {
+    const token = localStorage.getItem("token");
+    const cartId = localStorage.getItem("cartId");
+
+    try {
+      let res;
+
+      if (cartId) {
+        // 🔥 DINE-IN CHECKOUT
+        res = await fetch("/api/dine-in/checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ cartId })
+        });
+
+      } else {
+        // 🔥 PARCEL CHECKOUT
+        res = await fetch("/api/parcel/checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            items: Object.values(cart)
+          })
+        });
+      }
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message);
+
+      alert("Order placed successfully!");
+
+      Object.keys(cart).forEach(k => delete cart[k]);
+      updateCartUI();
+
+      billModal.style.display = "none";
+
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+}
+
+  // 🔥 OPEN BILL MODAL
+if (checkoutBtn) {
+  checkoutBtn.addEventListener("click", () => {
+    const ids = Object.keys(cart);
+
+    if (ids.length === 0) {
+      alert("Cart is empty!");
+      return;
+    }
+
+    let subtotal = 0;
+
+    const html = ids.map(id => {
+      const total = cart[id].price * cart[id].qty;
+      subtotal += total;
+
+      return `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span>${cart[id].name} x${cart[id].qty}</span>
+        <span>₹${total}</span>
+      </div>`;
+    }).join("");
+
+    document.getElementById("billItemsContainer").innerHTML = html;
+
+   const bill = calculateBill(subtotal);
+
+document.getElementById("billSubtotal").textContent = "₹" + bill.subtotal;
+
+const discountRow = document.getElementById("billDiscountRow");
+
+if (bill.discountRate > 0) {
+  discountRow.style.display = "block";
+  document.getElementById("billDiscount").textContent =
+    "-₹" + bill.discount.toFixed(2);
+} else {
+  discountRow.style.display = "none";
+}
+
+document.getElementById("billTax").textContent =
+  "₹" + bill.tax.toFixed(2);
+
+document.getElementById("billTotal").textContent =
+  "₹" + bill.total.toFixed(2);
+
+    billModal.style.display = "flex";
+  });
+}
+const closeBillBtn = document.getElementById("closeBillBtn");
+
+if (closeBillBtn) {
+  closeBillBtn.addEventListener("click", () => {
+    billModal.style.display = "none";
+  });
+}
 });
   </script>
 

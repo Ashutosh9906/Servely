@@ -282,199 +282,251 @@
 
 <div class="book-table-page">
   <div class="container">
+    <!-- LOGIN SECTION -->
+    <div id="loginSection" style="display: none">
+      <div
+        style="
+          min-height: 60vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <div
+          style="
+            text-align: center;
+            background: #fff;
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+            max-width: 440px;
+            width: 100%;
+          "
+        >
+          <div style="font-size: 3.5rem; margin-bottom: 20px">🔐</div>
+          <h2
+            style="
+              font-size: 1.8rem;
+              font-weight: 800;
+              color: #2b2d42;
+              margin-bottom: 10px;
+            "
+          >
+            Login Required
+          </h2>
+          <p style="color: #999; font-size: 0.95rem; margin-bottom: 30px">
+            You need to be logged in to reserve a table.
+          </p>
+          <a
+            href="/auth/login"
+            class="btn btn-primary btn-lg"
+            onclick="saveRedirect()"
+            >Sign In to Book</a
+          >
+        </div>
+      </div>
+    </div>
     <!-- Header -->
-    <div class="book-table-header">
-      <span class="section-label">Dine-In Booking</span>
-      <h1>Reserve Your Table 🍽️</h1>
-      <p>
-        Select an available table below. Orange tables are already reserved —
-        white tables are free for you to book!
-      </p>
-    </div>
-
-    <!-- Legend -->
-    <div class="table-legend">
-      <div class="legend-item">
-        <div class="legend-dot available"></div>
-        <span>Available</span>
+    <div id="tableSection">
+      <div class="book-table-header">
+        <span class="section-label">Dine-In Booking</span>
+        <h1>Reserve Your Table 🍽️</h1>
+        <p>
+          Select an available table below. Orange tables are already reserved —
+          white tables are free for you to book!
+        </p>
       </div>
-      <div class="legend-item">
-        <div class="legend-dot booked"></div>
-        <span>Reserved</span>
+
+      <!-- Legend -->
+      <div class="table-legend">
+        <div class="legend-item">
+          <div class="legend-dot available"></div>
+          <span>Available</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot booked"></div>
+          <span>Reserved</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Restaurant Floor -->
-    <div class="restaurant-floor">
-      <div class="floor-label">🏠 Restaurant Floor Plan</div>
-      <div class="tables-grid" id="tablesGrid">
-        <!-- Tables are rendered by JS below -->
+      <!-- Restaurant Floor -->
+      <div class="restaurant-floor">
+        <div class="floor-label">🏠 Restaurant Floor Plan</div>
+        <div class="tables-grid" id="tablesGrid">
+          <!-- Tables are rendered by JS below -->
+        </div>
       </div>
-    </div>
 
-    <!-- Summary -->
-    <div class="table-count-summary" id="tableSummary">
-      <span id="availableCount">10</span> tables available &nbsp;·&nbsp;
-      <span id="bookedCount">0</span> reserved
-    </div>
+      <!-- Summary -->
+      <div class="table-count-summary" id="tableSummary">
+        <span id="availableCount">10</span> tables available &nbsp;·&nbsp;
+        <span id="bookedCount">0</span> reserved
+      </div>
 
-    <!-- Confirmation Banner -->
-    <div class="confirm-banner" id="confirmBanner"></div>
+      <!-- Confirmation Banner -->
+      <div class="confirm-banner" id="confirmBanner"></div>
+    </div>
   </div>
-</div>
 
-<!-- Booking Modal -->
-<div class="booking-modal-overlay" id="modalOverlay">
-  <div class="booking-modal">
-    <button class="modal-close-btn" id="modalClose">✕</button>
-    <span class="modal-icon">🛎️</span>
-    <h2 id="modalTitle">Book Table</h2>
-    <p id="modalDesc">Would you like to reserve this table for dine-in?</p>
-    <div class="modal-btn-row">
-      <button class="btn btn-primary" id="modalConfirm">Confirm Booking</button>
-      <button class="btn btn-outline-primary" id="modalCancel">Cancel</button>
+  <!-- Booking Modal -->
+  <div class="booking-modal-overlay" id="modalOverlay">
+    <div class="booking-modal">
+      <button class="modal-close-btn" id="modalClose">✕</button>
+      <span class="modal-icon">🛎️</span>
+      <h2 id="modalTitle">Book Table</h2>
+      <p id="modalDesc">Would you like to reserve this table for dine-in?</p>
+      <div class="modal-btn-row">
+        <button class="btn btn-primary" id="modalConfirm">
+          Confirm Booking
+        </button>
+        <button class="btn btn-outline-primary" id="modalCancel">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  // ─── Auth check ───────────────────────────────────────────────
-  const token = localStorage.getItem("token");
-  const userName = localStorage.getItem("userName") || "Guest";
-
-  // If not logged in, show login wall instead of tables
-  if (!token) {
-    document.querySelector(".book-table-page").innerHTML = `
-      <div class="container" style="min-height:80vh;display:flex;align-items:center;justify-content:center;">
-        <div style="text-align:center;background:#fff;border-radius:20px;padding:60px 40px;box-shadow:0 8px 40px rgba(0,0,0,0.12);max-width:440px;width:100%;">
-          <div style="font-size:3.5rem;margin-bottom:20px;">🔐</div>
-          <h2 style="font-size:1.8rem;font-weight:800;color:#2B2D42;margin-bottom:10px;">Login Required</h2>
-          <p style="color:#999;font-size:0.95rem;margin-bottom:30px;">You need to be logged in to reserve a table at Servely.</p>
-          <a href="/auth/login" class="btn btn-primary btn-lg" style="display:inline-flex;">Sign In to Book</a>
-          <div style="margin-top:15px;">
-            <a href="/auth/register" style="font-size:0.9rem;color:#FF6B35;font-weight:600;">Don't have an account? Sign Up</a>
-          </div>
-        </div>
-      </div>
-    `;
+  function saveRedirect() {
+    localStorage.setItem("redirectAfterLogin", window.location.pathname);
   }
+  document.addEventListener("DOMContentLoaded", () => {
+    // ✅ Auth check
+    const token = localStorage.getItem("token");
+    const userName = localStorage.getItem("userName") || "Guest";
 
-  // ─── Table state ──────────────────────────────────────────────
-  // true = booked, false = available (Tables 3 & 7 pre-booked as demo)
-  let tableState = [];
-  let selectedTable = null;
+    const loginSection = document.getElementById("loginSection");
+    const tableSection = document.getElementById("tableSection");
 
-  const grid = document.getElementById("tablesGrid");
-  const overlay = document.getElementById("modalOverlay");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalDesc = document.getElementById("modalDesc");
-  const modalConfirm = document.getElementById("modalConfirm");
-  const modalClose = document.getElementById("modalClose");
-  const modalCancel = document.getElementById("modalCancel");
-  const availableCount = document.getElementById("availableCount");
-  const bookedCount = document.getElementById("bookedCount");
+    if (!token) {
+      if (loginSection) loginSection.style.display = "block";
+      if (tableSection) tableSection.style.display = "none";
+      return; // 🔥 stop everything here
+    } else {
+      if (loginSection) loginSection.style.display = "none";
+      if (tableSection) tableSection.style.display = "block";
+    }
 
-  function renderTables() {
-    console.log("RENDER CALLED");
-    console.log("GRID:", grid);
-    if (!grid) return;
-    grid.innerHTML = "";
-    let available = 0,
-      booked = 0;
-    tableState.forEach((isBooked, i) => {
-      const card = document.createElement("div");
-      card.className = "table-card" + (isBooked ? " booked" : "");
-      card.id = "table-" + i;
-      card.innerHTML = `
+    // ─── Table state ─────────────────────────────
+    let tableState = [];
+    let selectedTable = null;
+    let tablesData = [];
+
+    const grid = document.getElementById("tablesGrid");
+    const overlay = document.getElementById("modalOverlay");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalDesc = document.getElementById("modalDesc");
+    const modalConfirm = document.getElementById("modalConfirm");
+    const modalClose = document.getElementById("modalClose");
+    const modalCancel = document.getElementById("modalCancel");
+    const availableCount = document.getElementById("availableCount");
+    const bookedCount = document.getElementById("bookedCount");
+
+    function renderTables() {
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      let available = 0,
+        booked = 0;
+
+      tableState.forEach((isBooked, i) => {
+        const card = document.createElement("div");
+        card.className = "table-card" + (isBooked ? " booked" : "");
+
+        card.innerHTML = `
         <span class="table-icon">${isBooked ? "🔴" : "🪑"}</span>
         <span class="table-num">Table ${String(i + 1).padStart(2, "0")}</span>
         <span class="table-status">${isBooked ? "Reserved" : "Available"}</span>
       `;
-      if (!isBooked) {
-        card.addEventListener("click", () => openModal(i));
-        available++;
-      } else {
-        booked++;
-      }
-      grid.appendChild(card);
-    });
-    if (availableCount) availableCount.textContent = available;
-    if (bookedCount) bookedCount.textContent = booked;
-  }
 
-  function openModal(tableIndex) {
-    selectedTable = tableIndex;
-    if (modalTitle)
-      modalTitle.textContent = `Book Table ${String(tableIndex + 1).padStart(2, "0")}`;
-    if (modalDesc)
-      modalDesc.textContent = `Hi ${userName}! Reserve Table ${tableIndex + 1} in your name for dine-in at Servely?`;
-    if (overlay) overlay.classList.add("active");
-  }
+        if (!isBooked) {
+          card.addEventListener("click", () => openModal(i));
+          available++;
+        } else {
+          booked++;
+        }
 
-  function closeModal() {
-    if (overlay) overlay.classList.remove("active");
-    selectedTable = null;
-  }
+        grid.appendChild(card);
+      });
 
-  if (modalConfirm) {
-    modalConfirm.addEventListener("click", async () => {
-      if (selectedTable === null) return;
+      if (availableCount) availableCount.textContent = available;
+      if (bookedCount) bookedCount.textContent = booked;
+    }
 
+    function openModal(index) {
+      selectedTable = index;
+
+      if (modalTitle)
+        modalTitle.textContent = `Book Table ${String(index + 1).padStart(2, "0")}`;
+
+      if (modalDesc)
+        modalDesc.textContent = `Hi ${userName}! Reserve Table ${index + 1}?`;
+
+      if (overlay) overlay.classList.add("active");
+    }
+
+    function closeModal() {
+      if (overlay) overlay.classList.remove("active");
+      selectedTable = null;
+    }
+
+    if (modalConfirm) {
+      modalConfirm.addEventListener("click", async () => {
+        if (selectedTable === null || !tablesData[selectedTable]) return;
+
+        try {
+          const res = await fetch("/api/dine-in/table/select", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              tableId: tablesData[selectedTable]._id,
+            }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message);
+
+          localStorage.setItem("cartId", data.data._id);
+          window.location.href = "/menu";
+        } catch (err) {
+          alert(err.message || "Booking failed");
+        }
+      });
+    }
+
+    if (modalClose) modalClose.addEventListener("click", closeModal);
+    if (modalCancel) modalCancel.addEventListener("click", closeModal);
+    if (overlay) {
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeModal();
+      });
+    }
+
+    async function loadTables() {
       try {
-        const res = await fetch("/api/dine-in/table/select", {
-          method: "POST",
+        const res = await fetch("/api/dine-in", {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            tableId: tablesData[selectedTable]._id, // 🔥 FIX
-          }),
         });
 
         const data = await res.json();
-
         if (!res.ok) throw new Error(data.message);
 
-        modalConfirm.textContent = "✅ Booked!";
-        modalConfirm.disabled = true;
+        tablesData = data.tables;
+        tableState = tablesData.map((t) => t.status === "occupied");
 
-        setTimeout(() => {
-          closeModal();
-          loadTables();
-        }, 1000);
+        renderTables();
       } catch (err) {
-        alert(err.message || "Booking failed");
+        console.error("Error loading tables:", err);
       }
-    });
-  }
-
-  if (modalClose) modalClose.addEventListener("click", closeModal);
-  if (modalCancel) modalCancel.addEventListener("click", closeModal);
-  if (overlay)
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) closeModal();
-    });
-  let tablesData = []; // 🔥 add this globally
-
-  async function loadTables() {
-    try {
-      const res = await fetch("/api/dine-in");
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message);
-
-      tablesData = data.tables; // 🔥 store full objects
-
-      tableState = tablesData.map((t) => t.status === "occupied");
-
-      renderTables();
-    } catch (err) {
-      console.error("Error loading tables:", err);
     }
-  }
-  // Only render tables if user is logged in
-  if (token) loadTables();
+
+    // ✅ finally load tables
+    loadTables();
+  });
 </script>
 
 <%- include('../partials/footer') %>
